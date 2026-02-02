@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Topgo Courier App</title>
+    <!-- Подключаем SDK в head для ранней инициализации -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #f0f0f2;
+            --text-color: #000000;
+            --hint-color: #999999;
+            --button-color: #248bcf;
+            --button-text: #ffffff;
+            --secondary-bg: #ffffff;
+            --accent-green: #34c759;
+        }
+
+        /* Адаптация под тему Telegram */
+        body.theme-tg {
+            background-color: var(--tg-theme-bg-color, #f0f0f2);
+            color: var(--tg-theme-text-color, #000000);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 12px 12px 80px 12px;
+            line-height: 1.2;
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100vh;
+        }
+
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.2s ease-out; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-container {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 2px solid #ffffff;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .header-info h1 { font-size: 17px; font-weight: 800; }
+        .header-info p { font-size: 10px; color: var(--hint-color); font-weight: 600; }
+
+        .status-block { display: flex; flex-direction: column; align-items: flex-end; }
+        .status-label { display: flex; align-items: center; margin-bottom: 4px; }
+        .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
+        .status-text { font-size: 9px; font-weight: 800; text-transform: uppercase; }
+        
+        .online { color: var(--accent-green); }
+        .offline { color: #ff3b30; }
+        .bg-online { background-color: var(--accent-green); }
+        .bg-offline { background-color: #ff3b30; }
+
+        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #d1d1d6; transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--accent-green); }
+        input:checked + .slider:before { transform: translateX(18px); }
+
+        .card {
+            background-color: var(--secondary-bg);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+
+        .stats-grid { display: flex; gap: 10px; margin-bottom: 10px; }
+        .stat-card { flex: 1; text-align: center; }
+        .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .stat-value { font-size: 18px; font-weight: 900; }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-primary { background-color: var(--button-color); color: var(--button-text); }
+        .btn-outline { 
+            background: none; 
+            border: 1.5px solid var(--button-color); 
+            color: var(--button-color); 
+            margin-top: 8px;
+        }
+
+        .banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--button-color);
+        }
+
+        .banner-item p:first-child { font-size: 8px; font-weight: 800; color: var(--button-color); text-transform: uppercase; }
+        .banner-item p:last-child { font-size: 14px; font-weight: 700; }
+
+        .navbar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 65px;
+            background-color: var(--secondary-bg);
+            display: flex;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 1000;
+        }
+
+        .nav-link {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--hint-color);
+            background: none;
+            border: none;
+        }
+
+        .nav-link.active { color: var(--button-color); }
+        .nav-link span { font-size: 9px; font-weight: 700; margin-top: 4px; }
+        .nav-link svg { width: 20px; height: 20px; }
+
+        .footer-tag { text-align: center; margin-top: 30px; font-size: 10px; opacity: 0.2; font-weight: 700; }
+    </style>
+</head>
+<body class="theme-tg">
+
+    <!-- ГЛАВНАЯ -->
+    <div id="page-home" class="page active">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo-container">
+                    <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
+                </div>
+                <div class="header-info">
+                    <h1>Привет, Курьер!</h1>
+                    <p id="display-id">ID: ...</p>
+                </div>
+            </div>
+            <div class="status-block">
+                <div class="status-label">
+                    <span id="st-dot" class="dot bg-offline"></span>
+                    <span id="st-text" class="status-text offline">Вне смены</span>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" id="sh-toggle" onchange="updateShift()">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="card stat-card">
+                <span class="stat-label">Заказов сегодня</span>
+                <div class="stat-value">0</div>
+            </div>
+            <div class="card stat-card">
+                <span class="stat-label">Заработано</span>
+                <div class="stat-value" style="color: var(--accent-green)">0 ₽</div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="requestPayout()">Заказать выплату</button>
+
+        <div class="card banner" style="margin-top: 15px;">
+            <div class="banner-item">
+                <p>Текущая ставка</p>
+                <p>550 ₽ / заказ</p>
+            </div>
+            <div class="banner-item" style="text-align: right;">
+                <p>Статус</p>
+                <p>Активен</p>
+            </div>
+        </div>
+
+        <div style="margin-top: 15px;">
+            <h2 style="font-size: 15px; font-weight: 800; margin-bottom: 10px; padding-left: 4px;">Доступные заказы</h2>
+            <div class="card" style="background-color: #e3f2fd; border: 1.5px dashed var(--button-color); text-align: center; padding: 25px;">
+                <h3 style="color: var(--button-color); font-size: 18px; margin-bottom: 4px;">10 заказов</h3>
+                <p style="font-size: 12px; font-weight: 600; opacity: 0.8;">в вашем районе</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ИСТОРИЯ -->
+    <div id="page-history" class="page">
+        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
+        <div class="card" style="text-align: center; padding: 50px 20px; color: var(--hint-color);">
+            <p style="font-weight: 700;">История пуста</p>
+        </div>
+    </div>
+
+    <!-- ПРОФИЛЬ -->
+    <div id="page-profile" class="page">
+        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">Мой профиль</h2>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee;">
+                <span style="color: var(--hint-color);">ФИО</span>
+                <span style="font-weight: 700;">Иванов Иван</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 10px 0;">
+                <span style="color: var(--hint-color);">Телефон</span>
+                <span style="font-weight: 700;">+7 (999) 000-00-00</span>
+            </div>
+        </div>
+        <button class="btn btn-outline" onclick="editPaymentInfo()">Указать реквизиты</button>
+    </div>
+
+    <div class="footer-tag">@Topgo_jobbot</div>
+
+    <!-- НАВИГАЦИЯ -->
+    <nav class="navbar">
+        <button class="nav-link active" onclick="showPage('home')">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Главная</span>
+        </button>
+        <button class="nav-link" onclick="showPage('history')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>История</span>
+        </button>
+        <button class="nav-link" onclick="showPage('profile')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Профиль</span>
+        </button>
+    </nav>
+
+    <script>
+        // Глобальные переменные с защитой
+        const APP_DATA = {
+            accountId: "[[CURRENT_ACC_ID]]".indexOf("[[") !== -1 ? "ID: 0000" : "ID: [[CURRENT_ACC_ID]]"
+        };
+
+        // Инициализация при загрузке DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('display-id').innerText = APP_DATA.accountId;
+            
+            if (window.Telegram && window.Telegram.WebApp) {
+                const tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                // Применяем цвета темы
+                if (tg.themeParams.bg_color) {
+                    document.body.style.backgroundColor = tg.themeParams.bg_color;
+                }
+            }
+        });
+
+        function showPage(pageId) {
+            const pages = ['home', 'history', 'profile'];
+            pages.forEach(p => {
+                const el = document.getElementById('page-' + p);
+                if (el) el.classList.remove('active');
+            });
+            
+            const target = document.getElementById('page-' + pageId);
+            if(target) target.classList.add('active');
+            
+            // Навигация
+            document.querySelectorAll('.nav-link').forEach((btn, idx) => {
+                btn.classList.remove('active');
+                if((pageId === 'home' && idx === 0) || 
+                   (pageId === 'history' && idx === 1) || 
+                   (pageId === 'profile' && idx === 2)) {
+                    btn.classList.add('active');
+                }
+            });
+
+            if (window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function updateShift() {
+            const isOnline = document.getElementById('sh-toggle').checked;
+            const textEl = document.getElementById('st-text');
+            const dotEl = document.getElementById('st-dot');
+            
+            if (isOnline) {
+                textEl.innerText = 'На смене';
+                textEl.className = 'status-text online';
+                dotEl.className = 'dot bg-online';
+                // SQL: UPDATE accounts SET status = 'active' WHERE id = [[CURRENT_ACC_ID]]
+            } else {
+                textEl.innerText = 'Вне смены';
+                textEl.className = 'status-text offline';
+                dotEl.className = 'dot bg-offline';
+                // SQL: UPDATE accounts SET status = 'inactive' WHERE id = [[CURRENT_ACC_ID]]
+            }
+        }
+
+        function requestPayout() {
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.showConfirm("Вы действительно хотите заказать выплату?");
+            } else {
+                alert("Запрос на выплату.");
+            }
+        }
+
+        function editPaymentInfo() {
+            if (window.Telegram?.WebApp) {
+                window.Telegram.WebApp.showAlert("Функция в разработке.");
+            } else {
+                alert("Скоро...");
+            }
+        }
+    </script>
+</body>
+</html>
