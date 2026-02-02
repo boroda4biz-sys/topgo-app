@@ -84,25 +84,45 @@
         /* Cards */
         .card { background-color: var(--secondary-bg); border-radius: var(--border-radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px; }
         
-        /* Stats */
+        /* Bonus Stars Card */
+        .bonus-card { background: linear-gradient(135deg, #248bcf 0%, #1a6fa5 100%); color: white; position: relative; overflow: hidden; }
+        .bonus-card::after { content: '★'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.1; transform: rotate(-15deg); }
+        .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; position: relative; z-index: 1; }
+        .stars-container { display: flex; justify-content: space-between; margin-bottom: 8px; position: relative; z-index: 1; }
+        .star { font-size: 20px; color: rgba(255,255,255,0.2); transition: all 0.3s ease; text-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .star.active { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); transform: scale(1.1); }
+        .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.9; position: relative; z-index: 1; }
+
+        /* Stats Grid */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 10px; }
         .stat-card { flex: 1; text-align: center; }
         .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; display: block; margin-bottom: 4px; }
         .stat-value { font-size: 18px; font-weight: 900; }
 
-        /* Bonus Stars */
-        .bonus-card { background: linear-gradient(135deg, #248bcf 0%, #1a6fa5 100%); color: white; }
-        .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; opacity: 0.9; display: flex; justify-content: space-between; }
-        .stars-container { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .star { font-size: 18px; color: rgba(255,255,255,0.3); transition: color 0.3s; }
-        .star.active { color: var(--accent-gold); }
-        .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.8; }
+        /* Career / Rates Section */
+        .career-title { font-size: 12px; font-weight: 800; text-transform: uppercase; margin: 10px 4px 10px 4px; display: flex; justify-content: space-between; align-items: center; }
+        .career-title span:last-child { font-size: 10px; color: var(--button-color); }
+        
+        .rates-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .rate-box { 
+            flex: 1; background: var(--secondary-bg); padding: 12px 8px; border-radius: 12px; text-align: center; 
+            border: 2px solid transparent; transition: all 0.3s; position: relative;
+        }
+        .rate-box.active { border-color: var(--accent-green); background: #fafffb; }
+        .rate-box.locked { opacity: 0.6; background: #fafafa; }
+        .rate-price { font-size: 14px; font-weight: 900; display: block; }
+        .rate-goal { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-top: 4px; display: block; }
+        .rate-check { position: absolute; top: -6px; right: -6px; background: var(--accent-green); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; align-items: center; justify-content: center; }
+        .rate-box.active .rate-check { display: flex; }
 
-        /* Progress Bar Rate */
-        .rate-progress-container { margin-top: 5px; }
-        .progress-labels { display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--hint-color); margin-bottom: 6px; }
-        .progress-bg { width: 100%; height: 8px; background-color: var(--input-bg); border-radius: 4px; overflow: hidden; position: relative; }
-        .progress-fill { height: 100%; background-color: var(--button-color); width: 0%; transition: width 0.5s ease; }
+        /* Progress Bar Modern */
+        .modern-progress { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; color: var(--hint-color); }
+        .progress-track { height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .progress-bar { height: 100%; background: var(--button-color); width: 0%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .progress-footer { display: flex; justify-content: space-between; align-items: center; }
+        .remaining-text { font-size: 10px; font-weight: 700; color: var(--button-color); }
+        .percent-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 
         /* Inputs */
         .input-group { margin-bottom: 12px; }
@@ -115,7 +135,7 @@
 
         .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; transition: opacity 0.2s; }
         .btn:active { opacity: 0.7; }
-        .btn-primary { background-color: var(--button-color); color: var(--button-text); }
+        .btn-primary { background-color: var(--button-color); color: var(--button-text); box-shadow: 0 4px 10px rgba(36, 139, 207, 0.2); }
         .btn-outline { background: none; border: 1.5px solid var(--button-color); color: var(--button-color); margin-top: 8px; }
 
         /* Navbar */
@@ -160,40 +180,62 @@
         <!-- КАРТОЧКА БОНУСА (ЗВЕЗДЫ) -->
         <div class="card bonus-card">
             <div class="bonus-title">
-                <span>Бонус 10 000 ₽</span>
+                <span>Бонус 10 000 ₽ за 10 заказов</span>
                 <span id="stars-count">0/10</span>
             </div>
             <div class="stars-container" id="stars-row">
-                <!-- Генерируются через JS -->
                 <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
                 <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
             </div>
-            <p class="bonus-desc">Выполни первые 10 заказов для получения бонуса</p>
+            <p id="bonus-status-text" class="bonus-desc">Выполните 10 заказов для получения бонуса</p>
         </div>
 
         <div class="stats-grid">
             <div class="card stat-card">
-                <span class="stat-label">Заказов сегодня</span>
+                <span class="stat-label">За сегодня</span>
                 <div id="stat-orders" class="stat-value">0</div>
             </div>
             <div class="card stat-card">
-                <span class="stat-label">Заработано</span>
+                <span class="stat-label">Баланс</span>
                 <div id="stat-balance" class="stat-value" style="color: var(--accent-green)">0 ₽</div>
             </div>
         </div>
 
-        <!-- ПРОГРЕСС СТАВКИ -->
-        <div class="card">
-            <div class="progress-labels">
-                <span id="current-rate-label">Ставка: 550 ₽</span>
-                <span id="next-goal-label">След. цель: 50 зак.</span>
+        <!-- КАРЬЕРНАЯ ЛЕСТНИЦА (СТАВКИ) -->
+        <div class="career-title">
+            <span>Уровни дохода</span>
+            <span id="total-orders-badge">Всего: 0 зак.</span>
+        </div>
+        
+        <div class="rates-row">
+            <div id="rate-550" class="rate-box active">
+                <span class="rate-check">✓</span>
+                <span class="rate-price">550 ₽</span>
+                <span class="rate-goal">Базовая</span>
             </div>
-            <div class="progress-bg">
-                <div id="rate-progress-fill" class="progress-fill"></div>
+            <div id="rate-600" class="rate-box locked">
+                <span class="rate-check">✓</span>
+                <span class="rate-price">600 ₽</span>
+                <span class="rate-goal">50 зак.</span>
             </div>
-            <div style="display: flex; justify-content: space-between; margin-top: 8px;">
-                <p style="font-size: 10px; font-weight: 700; color: var(--hint-color);">Всего выполнено: <span id="total-orders-count" style="color: var(--text-color)">0</span></p>
-                <p id="rate-hint" style="font-size: 10px; font-weight: 700; color: var(--button-color);">+50 ₽ к ставке</p>
+            <div id="rate-650" class="rate-box locked">
+                <span class="rate-check">✓</span>
+                <span class="rate-price">650 ₽</span>
+                <span class="rate-goal">100 зак.</span>
+            </div>
+        </div>
+
+        <!-- ПРОГРЕСС ДО СЛЕДУЮЩЕЙ СТАВКИ -->
+        <div class="modern-progress">
+            <div class="progress-header">
+                <span id="progress-text-left">До повышения (600 ₽)</span>
+            </div>
+            <div class="progress-track">
+                <div id="rate-progress-fill" class="progress-bar"></div>
+            </div>
+            <div class="progress-footer">
+                <span id="remaining-orders-text" class="remaining-text">Осталось: 50 зак.</span>
+                <span id="progress-text-right" class="percent-badge">0%</span>
             </div>
         </div>
 
@@ -282,7 +324,7 @@
                 status: "inactive",
                 balance: 0,
                 orders_today: 0,
-                total_orders: 0, // Поле для общего кол-ва заказов
+                total_orders: 0,
                 created_at: new Date()
             };
             await setDoc(userRef, newUser);
@@ -291,62 +333,80 @@
         function updateUI(data) {
             const total = data.total_orders || 0;
             
-            // 1. Имя и ID
+            // 1. Общая инфо
             document.getElementById('home-name').innerText = data.name || "Курьер";
             document.getElementById('display-id').innerText = "ID: " + userId;
+            document.getElementById('total-orders-badge').innerText = "Всего: " + total + " зак.";
             
             // 2. Статистика
             document.getElementById('stat-orders').innerText = data.orders_today || 0;
             document.getElementById('stat-balance').innerText = (data.balance || 0) + " ₽";
-            document.getElementById('total-orders-count').innerText = total;
 
-            // 3. Звезды бонуса (10 заказов)
+            // 3. Звезды бонуса
             const stars = document.querySelectorAll('.star');
             stars.forEach((s, idx) => {
                 if (idx < total) s.classList.add('active');
                 else s.classList.remove('active');
             });
             document.getElementById('stars-count').innerText = Math.min(total, 10) + "/10";
-
-            // 4. Логика ставок и прогресс-бара
-            let currentRate = 550;
-            let nextGoal = 50;
-            let prevGoal = 0;
-
-            if (total >= 100) {
-                currentRate = 650;
-                nextGoal = 1000; // Условный предел
-                prevGoal = 100;
-                document.getElementById('next-goal-label').innerText = "Макс. ставка";
-                document.getElementById('rate-hint').innerText = "Лучшая ставка!";
-            } else if (total >= 50) {
-                currentRate = 600;
-                nextGoal = 100;
-                prevGoal = 50;
-                document.getElementById('next-goal-label').innerText = "Цель: 100 зак.";
-                document.getElementById('rate-hint').innerText = "+50 ₽ к ставке";
+            
+            const bonusStatusText = document.getElementById('bonus-status-text');
+            if (total >= 10) {
+                bonusStatusText.innerText = "Поздравляем! Бонус 10 000 ₽ ваш!";
+                bonusStatusText.style.color = "var(--accent-gold)";
             } else {
-                currentRate = 550;
-                nextGoal = 50;
-                prevGoal = 0;
-                document.getElementById('next-goal-label').innerText = "Цель: 50 зак.";
-                document.getElementById('rate-hint').innerText = "+50 ₽ к ставке";
+                bonusStatusText.innerText = `Осталось ${10 - total} зак. до бонуса 10 000 ₽`;
+                bonusStatusText.style.color = "white";
             }
 
-            document.getElementById('current-rate-label').innerText = "Ставка: " + currentRate + " ₽";
-            
-            // Расчет ширины прогресс-бара
-            const progressPercent = Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
-            document.getElementById('rate-progress-fill').style.width = progressPercent + "%";
-            
-            // 5. Статус смены
+            // 4. Уровни ставок
+            const r550 = document.getElementById('rate-550');
+            const r600 = document.getElementById('rate-600');
+            const r650 = document.getElementById('rate-650');
+
+            // Сброс классов
+            [r550, r600, r650].forEach(r => { r.classList.remove('active', 'locked'); r.classList.add('locked'); });
+
+            let nextGoal = 50;
+            let prevGoal = 0;
+            let currentRateGoalText = "До повышения (600 ₽)";
+            let remainingText = "";
+
+            if (total >= 100) {
+                r550.classList.add('active'); r550.classList.remove('locked');
+                r600.classList.add('active'); r600.classList.remove('locked');
+                r650.classList.add('active'); r650.classList.remove('locked');
+                nextGoal = 100; prevGoal = 0; 
+                currentRateGoalText = "Максимальная ставка!";
+                remainingText = "Цель достигнута";
+            } else if (total >= 50) {
+                r550.classList.add('active'); r550.classList.remove('locked');
+                r600.classList.add('active'); r600.classList.remove('locked');
+                nextGoal = 100; prevGoal = 50;
+                currentRateGoalText = "До повышения (650 ₽)";
+                remainingText = `Осталось: ${100 - total} зак.`;
+            } else {
+                r550.classList.add('active'); r550.classList.remove('locked');
+                nextGoal = 50; prevGoal = 0;
+                currentRateGoalText = "До повышения (600 ₽)";
+                remainingText = `Осталось: ${50 - total} зак.`;
+            }
+
+            // 5. Прогресс-бар
+            const progressVal = total >= 100 ? 100 : Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
+            document.getElementById('rate-progress-fill').style.width = progressVal + "%";
+            document.getElementById('progress-text-left').innerText = currentRateGoalText;
+            document.getElementById('progress-text-right').innerText = Math.round(progressVal) + "%";
+            document.getElementById('remaining-orders-text').innerText = remainingText;
+
+            // 6. Статус смены
             const isOnline = data.status === 'active';
             document.getElementById('sh-toggle').checked = isOnline;
             document.getElementById('st-text').innerText = isOnline ? 'На смене' : 'Вне смены';
             document.getElementById('st-text').className = isOnline ? 'status-text online' : 'status-text offline';
             document.getElementById('st-dot').className = isOnline ? 'dot bg-online' : 'dot bg-offline';
 
-            // 6. Профиль
+            // 7. Профиль
             if (document.activeElement !== document.getElementById('prof-name')) {
                 document.getElementById('prof-name').value = data.name || "";
             }
@@ -359,8 +419,7 @@
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
             const btn = document.getElementById('save-profile-btn');
-            btn.innerText = "Сохранение...";
-            btn.disabled = true;
+            btn.innerText = "Сохранение..."; btn.disabled = true;
             try {
                 await updateDoc(userRef, { name, phone });
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
@@ -368,8 +427,7 @@
             } catch (e) {
                 tg.showAlert("Ошибка!");
             } finally {
-                btn.innerText = "Сохранить изменения";
-                btn.disabled = false;
+                btn.innerText = "Сохранить изменения"; btn.disabled = false;
             }
         };
 
