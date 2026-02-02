@@ -17,7 +17,9 @@
             --button-text: #ffffff;
             --secondary-bg: #ffffff;
             --accent-green: #34c759;
+            --accent-gold: #ffcc00;
             --input-bg: #f4f4f7;
+            --border-radius: 16px;
         }
 
         body.theme-tg {
@@ -31,7 +33,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding: 12px 12px 80px 12px;
+            padding: 12px 12px 100px 12px;
             line-height: 1.2;
             overflow-x: hidden;
             width: 100%;
@@ -44,7 +46,7 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .header-left { display: flex; align-items: center; gap: 12px; }
         .logo-container {
             width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
@@ -55,7 +57,7 @@
         .header-info h1 { font-size: 17px; font-weight: 800; }
         .header-info p { font-size: 10px; color: var(--hint-color); font-weight: 600; }
 
-        /* Status & Switch */
+        /* Status */
         .status-block { display: flex; flex-direction: column; align-items: flex-end; }
         .status-label { display: flex; align-items: center; margin-bottom: 4px; }
         .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
@@ -65,6 +67,7 @@
         .bg-online { background-color: var(--accent-green); }
         .bg-offline { background-color: #ff3b30; }
 
+        /* Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider {
@@ -78,12 +81,28 @@
         input:checked + .slider { background-color: var(--accent-green); }
         input:checked + .slider:before { transform: translateX(18px); }
 
-        /* Cards & UI Elements */
-        .card { background-color: var(--secondary-bg); border-radius: 14px; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px; }
+        /* Cards */
+        .card { background-color: var(--secondary-bg); border-radius: var(--border-radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px; }
+        
+        /* Stats */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 10px; }
         .stat-card { flex: 1; text-align: center; }
         .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; display: block; margin-bottom: 4px; }
         .stat-value { font-size: 18px; font-weight: 900; }
+
+        /* Bonus Stars */
+        .bonus-card { background: linear-gradient(135deg, #248bcf 0%, #1a6fa5 100%); color: white; }
+        .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; opacity: 0.9; display: flex; justify-content: space-between; }
+        .stars-container { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .star { font-size: 18px; color: rgba(255,255,255,0.3); transition: color 0.3s; }
+        .star.active { color: var(--accent-gold); }
+        .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.8; }
+
+        /* Progress Bar Rate */
+        .rate-progress-container { margin-top: 5px; }
+        .progress-labels { display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; text-transform: uppercase; color: var(--hint-color); margin-bottom: 6px; }
+        .progress-bg { width: 100%; height: 8px; background-color: var(--input-bg); border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-fill { height: 100%; background-color: var(--button-color); width: 0%; transition: width 0.5s ease; }
 
         /* Inputs */
         .input-group { margin-bottom: 12px; }
@@ -101,7 +120,7 @@
 
         /* Navbar */
         .navbar {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 65px;
+            position: fixed; bottom: 0; left: 0; right: 0; height: 70px;
             background-color: var(--secondary-bg); display: flex;
             border-top: 1px solid rgba(0,0,0,0.05); padding-bottom: env(safe-area-inset-bottom); z-index: 1000;
         }
@@ -109,7 +128,7 @@
         .nav-link.active { color: var(--button-color); }
         .nav-link span { font-size: 9px; font-weight: 700; margin-top: 4px; }
         
-        .footer-tag { text-align: center; margin-top: 30px; font-size: 10px; opacity: 0.2; font-weight: 700; }
+        .footer-tag { text-align: center; margin-top: 20px; font-size: 10px; opacity: 0.2; font-weight: 700; }
     </style>
 </head>
 <body class="theme-tg">
@@ -138,6 +157,20 @@
             </div>
         </div>
 
+        <!-- КАРТОЧКА БОНУСА (ЗВЕЗДЫ) -->
+        <div class="card bonus-card">
+            <div class="bonus-title">
+                <span>Бонус 10 000 ₽</span>
+                <span id="stars-count">0/10</span>
+            </div>
+            <div class="stars-container" id="stars-row">
+                <!-- Генерируются через JS -->
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+            </div>
+            <p class="bonus-desc">Выполни первые 10 заказов для получения бонуса</p>
+        </div>
+
         <div class="stats-grid">
             <div class="card stat-card">
                 <span class="stat-label">Заказов сегодня</span>
@@ -149,18 +182,22 @@
             </div>
         </div>
 
-        <button class="btn btn-primary" onclick="requestPayout()">Заказать выплату</button>
-
-        <div class="card" style="margin-top: 15px; border-left: 4px solid var(--button-color); display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <p style="font-size: 8px; font-weight: 800; color: var(--button-color); text-transform: uppercase;">Текущая ставка</p>
-                <p style="font-size: 14px; font-weight: 700;">550 ₽ / заказ</p>
+        <!-- ПРОГРЕСС СТАВКИ -->
+        <div class="card">
+            <div class="progress-labels">
+                <span id="current-rate-label">Ставка: 550 ₽</span>
+                <span id="next-goal-label">След. цель: 50 зак.</span>
             </div>
-            <div style="text-align: right;">
-                <p style="font-size: 8px; font-weight: 800; color: var(--hint-color); text-transform: uppercase;">Статус</p>
-                <p style="font-size: 14px; font-weight: 700;">Активен</p>
+            <div class="progress-bg">
+                <div id="rate-progress-fill" class="progress-fill"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 8px;">
+                <p style="font-size: 10px; font-weight: 700; color: var(--hint-color);">Всего выполнено: <span id="total-orders-count" style="color: var(--text-color)">0</span></p>
+                <p id="rate-hint" style="font-size: 10px; font-weight: 700; color: var(--button-color);">+50 ₽ к ставке</p>
             </div>
         </div>
+
+        <button class="btn btn-primary" onclick="requestPayout()">Заказать выплату</button>
     </div>
 
     <!-- ИСТОРИЯ -->
@@ -195,15 +232,15 @@
     <!-- НАВИГАЦИЯ -->
     <nav class="navbar">
         <button class="nav-link active" onclick="showPage('home')">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Главная</span>
         </button>
         <button class="nav-link" onclick="showPage('history')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span>История</span>
         </button>
         <button class="nav-link" onclick="showPage('profile')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>Профиль</span>
         </button>
     </nav>
@@ -226,18 +263,14 @@
         const db = getFirestore(app);
 
         const tg = window.Telegram.WebApp;
-        // Получаем ID пользователя Telegram
         const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
         const userRef = doc(db, "accounts", userId);
 
-        // Слушаем изменения данных пользователя в реальном времени
         onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
                 updateUI(data);
             } else {
-                // Если пользователя нет, создаем базовый профиль
-                console.log("Создание нового профиля для ID:", userId);
                 createNewUser();
             }
         });
@@ -249,26 +282,71 @@
                 status: "inactive",
                 balance: 0,
                 orders_today: 0,
+                total_orders: 0, // Поле для общего кол-ва заказов
                 created_at: new Date()
             };
             await setDoc(userRef, newUser);
         }
 
         function updateUI(data) {
-            // Главная страница
+            const total = data.total_orders || 0;
+            
+            // 1. Имя и ID
             document.getElementById('home-name').innerText = data.name || "Курьер";
             document.getElementById('display-id').innerText = "ID: " + userId;
+            
+            // 2. Статистика
             document.getElementById('stat-orders').innerText = data.orders_today || 0;
             document.getElementById('stat-balance').innerText = (data.balance || 0) + " ₽";
+            document.getElementById('total-orders-count').innerText = total;
+
+            // 3. Звезды бонуса (10 заказов)
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((s, idx) => {
+                if (idx < total) s.classList.add('active');
+                else s.classList.remove('active');
+            });
+            document.getElementById('stars-count').innerText = Math.min(total, 10) + "/10";
+
+            // 4. Логика ставок и прогресс-бара
+            let currentRate = 550;
+            let nextGoal = 50;
+            let prevGoal = 0;
+
+            if (total >= 100) {
+                currentRate = 650;
+                nextGoal = 1000; // Условный предел
+                prevGoal = 100;
+                document.getElementById('next-goal-label').innerText = "Макс. ставка";
+                document.getElementById('rate-hint').innerText = "Лучшая ставка!";
+            } else if (total >= 50) {
+                currentRate = 600;
+                nextGoal = 100;
+                prevGoal = 50;
+                document.getElementById('next-goal-label').innerText = "Цель: 100 зак.";
+                document.getElementById('rate-hint').innerText = "+50 ₽ к ставке";
+            } else {
+                currentRate = 550;
+                nextGoal = 50;
+                prevGoal = 0;
+                document.getElementById('next-goal-label').innerText = "Цель: 50 зак.";
+                document.getElementById('rate-hint').innerText = "+50 ₽ к ставке";
+            }
+
+            document.getElementById('current-rate-label').innerText = "Ставка: " + currentRate + " ₽";
             
-            // Статус смены
+            // Расчет ширины прогресс-бара
+            const progressPercent = Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
+            document.getElementById('rate-progress-fill').style.width = progressPercent + "%";
+            
+            // 5. Статус смены
             const isOnline = data.status === 'active';
             document.getElementById('sh-toggle').checked = isOnline;
             document.getElementById('st-text').innerText = isOnline ? 'На смене' : 'Вне смены';
             document.getElementById('st-text').className = isOnline ? 'status-text online' : 'status-text offline';
             document.getElementById('st-dot').className = isOnline ? 'dot bg-online' : 'dot bg-offline';
 
-            // Страница профиля (заполняем поля только если они не в фокусе, чтобы не мешать вводу)
+            // 6. Профиль
             if (document.activeElement !== document.getElementById('prof-name')) {
                 document.getElementById('prof-name').value = data.name || "";
             }
@@ -277,21 +355,18 @@
             }
         }
 
-        // Экспортируем функции для кнопок в HTML
         window.saveProfile = async () => {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
             const btn = document.getElementById('save-profile-btn');
-
             btn.innerText = "Сохранение...";
             btn.disabled = true;
-
             try {
                 await updateDoc(userRef, { name, phone });
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert("Данные успешно сохранены!");
+                tg.showAlert("Данные сохранены!");
             } catch (e) {
-                tg.showAlert("Ошибка: " + e.message);
+                tg.showAlert("Ошибка!");
             } finally {
                 btn.innerText = "Сохранить изменения";
                 btn.disabled = false;
@@ -303,32 +378,25 @@
             try {
                 await updateDoc(userRef, { status: isChecked ? 'active' : 'inactive' });
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            } catch (e) {
-                console.error(e);
-            }
+            } catch (e) { console.error(e); }
         };
     </script>
 
     <script>
-        // Чистый JS для UI
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
-            
             document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            
-            if (window.Telegram?.WebApp?.HapticFeedback) {
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            }
+            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
         }
 
         function requestPayout() {
-            window.Telegram?.WebApp?.showConfirm("Вы действительно хотите заказать выплату?");
+            window.Telegram?.WebApp?.showConfirm("Заказать выплату на текущие реквизиты?");
         }
 
         function editPaymentInfo() {
-            window.Telegram?.WebApp?.showAlert("Функция настройки реквизитов скоро появится.");
+            window.Telegram?.WebApp?.showAlert("Настройка реквизитов будет доступна после проверки документов.");
         }
     </script>
 </body>
