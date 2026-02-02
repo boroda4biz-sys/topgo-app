@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Topgo Courier App</title>
     
-    <!-- SDK Telegram -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
@@ -22,11 +21,6 @@
             --border-radius: 16px;
         }
 
-        body.theme-tg {
-            background-color: var(--tg-theme-bg-color, #f0f0f2);
-            color: var(--tg-theme-text-color, #000000);
-        }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
         body {
@@ -34,16 +28,35 @@
             color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             padding: 12px 12px 100px 12px;
-            line-height: 1.2;
             overflow-x: hidden;
             width: 100%;
             min-height: 100vh;
+            line-height: 1.2;
         }
 
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.2s ease-out; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Custom Modal System */
+        #custom-modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center;
+            z-index: 9999; padding: 20px; backdrop-filter: blur(2px);
+        }
+        .modal-card {
+            background: white; border-radius: 20px; width: 100%; max-width: 320px;
+            padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-text { font-size: 15px; font-weight: 600; line-height: 1.4; margin-bottom: 20px; color: #000; }
+        .modal-btn { 
+            width: 100%; padding: 14px; border-radius: 12px; border: none; 
+            font-size: 15px; font-weight: 700; cursor: pointer; 
+            background: var(--button-color); color: white;
+        }
 
         /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -61,8 +74,8 @@
         .status-label { display: flex; align-items: center; margin-bottom: 4px; }
         .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
         .status-text { font-size: 9px; font-weight: 800; text-transform: uppercase; }
-        .online { color: var(--accent-green); }
-        .offline { color: #ff3b30; }
+        .online { color: var(--accent-green) !important; }
+        .offline { color: #ff3b30 !important; }
         .bg-online { background-color: var(--accent-green); }
         .bg-offline { background-color: #ff3b30; }
 
@@ -83,58 +96,7 @@
         /* Cards */
         .card { background-color: var(--secondary-bg); border-radius: var(--border-radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px; }
         
-        /* Large Orders Banner */
-        .orders-banner {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-            border: 2px solid #248bcf;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-        .orders-banner-icon {
-            font-size: 28px;
-            background: #e1f0fb;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            flex-shrink: 0;
-        }
-        .orders-banner-content { flex: 1; }
-        .orders-banner-content h3 { font-size: 15px; font-weight: 900; margin-bottom: 1px; color: #1a6fa5; }
-        .orders-banner-content p { font-size: 11px; font-weight: 600; color: var(--hint-color); }
-        
-        .btn-view-orders {
-            background: var(--button-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 6px 10px;
-            font-size: 10px;
-            font-weight: 800;
-            margin-top: 6px;
-            text-transform: uppercase;
-        }
-
-        /* Pulse */
-        .pulse-dot {
-            position: absolute; top: 12px; right: 12px; width: 8px; height: 8px;
-            background: var(--accent-green); border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(52, 199, 89, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
-        }
-
-        /* Bonus Stars Card */
+        /* Bonus Card */
         .bonus-card { background: linear-gradient(135deg, #248bcf 0%, #1a6fa5 100%); color: white; position: relative; overflow: hidden; }
         .bonus-card::after { content: '★'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.1; transform: rotate(-15deg); }
         .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; position: relative; z-index: 1; }
@@ -143,54 +105,80 @@
         .star.active { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); transform: scale(1.1); }
         .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.9; position: relative; z-index: 1; }
 
-        /* Stats Grid */
+        /* Stats */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 12px; }
         .stat-card { flex: 1; text-align: center; }
-        .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; display: block; }
         .stat-value { font-size: 18px; font-weight: 900; }
 
-        /* Rates Section */
-        .career-title { font-size: 12px; font-weight: 800; text-transform: uppercase; margin: 10px 4px 10px 4px; display: flex; justify-content: space-between; align-items: center; }
+        /* Rates */
+        .career-title { font-size: 12px; font-weight: 800; text-transform: uppercase; margin: 10px 4px; display: flex; justify-content: space-between; align-items: center; }
         .rates-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .rate-box { flex: 1; background: var(--secondary-bg); padding: 12px 8px; border-radius: 12px; text-align: center; border: 2px solid transparent; transition: all 0.3s; position: relative; }
+        .rate-box { flex: 1; background: var(--secondary-bg); padding: 12px 8px; border-radius: 12px; text-align: center; border: 2px solid transparent; position: relative; transition: 0.3s; }
         .rate-box.active { border-color: var(--accent-green); background: #fafffb; }
         .rate-box.locked { opacity: 0.6; background: #fafafa; }
         .rate-price { font-size: 14px; font-weight: 900; display: block; }
         .rate-goal { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-top: 4px; display: block; }
-        .rate-check { position: absolute; top: -6px; right: -6px; background: var(--accent-green); color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: none; align-items: center; justify-content: center; }
-        .rate-box.active .rate-check { display: flex; }
 
         /* Progress Bar */
         .modern-progress { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
         .progress-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; color: var(--hint-color); }
         .progress-track { height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-        .progress-bar { height: 100%; background: var(--button-color); width: 0%; transition: width 0.6s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .progress-bar { height: 100%; background: var(--button-color); width: 0%; transition: width 0.6s ease; }
         .progress-footer { display: flex; justify-content: space-between; align-items: center; }
         .remaining-text { font-size: 10px; font-weight: 700; color: var(--button-color); }
         .percent-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 
-        /* Main Buttons */
-        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; transition: opacity 0.2s; }
-        .btn:active { opacity: 0.7; }
-        .btn-primary { background-color: var(--button-color); color: var(--button-text); box-shadow: 0 4px 10px rgba(36, 139, 207, 0.2); }
+        /* Orders Banner */
+        .orders-banner {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border: 2px solid #248bcf;
+            padding: 16px; display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px; position: relative; overflow: hidden;
+        }
+        .orders-banner-content h3 { font-size: 15px; font-weight: 900; color: #1a6fa5; }
+        .orders-banner-content p { font-size: 11px; font-weight: 600; color: var(--hint-color); }
+        .btn-view-orders {
+            background: var(--button-color); color: white; border: none; border-radius: 8px;
+            padding: 6px 12px; font-size: 10px; font-weight: 800; margin-top: 8px; text-transform: uppercase;
+        }
+        .pulse-dot {
+            position: absolute; top: 12px; right: 12px; width: 8px; height: 8px;
+            background: var(--accent-green); border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(52, 199, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); } }
 
-        /* Navbar */
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: var(--secondary-bg); display: flex; border-top: 1px solid rgba(0,0,0,0.05); padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--hint-color); background: none; border: none; padding-top: 4px; }
-        .nav-link.active { color: var(--button-color); }
-        .nav-link span { font-size: 9px; font-weight: 700; margin-top: 4px; }
-        
-        .footer-tag { text-align: center; margin-top: 20px; font-size: 10px; opacity: 0.2; font-weight: 700; }
-        
-        /* Inputs */
+        /* Forms */
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; padding-left: 4px; }
-        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; color: var(--text-color); outline: none; }
+        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; color: var(--text-color); outline: none; transition: background 0.2s; }
+        .input-field:read-only { background-color: #ffffff; color: #555; }
+
+        /* Buttons */
+        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-bottom: 8px; }
+        .btn-primary { background-color: var(--button-color); color: var(--button-text); box-shadow: 0 4px 10px rgba(36, 139, 207, 0.2); }
+        .btn-secondary { background-color: #e5e5ea; color: #000; }
+
+        /* Navbar */
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: var(--secondary-bg); display: flex; border-top: 1px solid rgba(0,0,0,0.05); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--hint-color); background: none; border: none; }
+        .nav-link.active { color: var(--button-color); }
+        .nav-link span { font-size: 9px; font-weight: 700; margin-top: 4px; }
+        .nav-link svg { width: 22px; height: 22px; }
     </style>
 </head>
 <body class="theme-tg">
 
-    <!-- ГЛАВНАЯ -->
+    <!-- Custom Modal Overlay -->
+    <div id="custom-modal-overlay">
+        <div class="modal-card">
+            <p id="modal-text-content" class="modal-text">Сообщение</p>
+            <button id="modal-primary-btn" class="modal-btn" onclick="closeModal()">Понятно</button>
+        </div>
+    </div>
+
+    <!-- HOME PAGE -->
     <div id="page-home" class="page active">
         <div class="header">
             <div class="header-left">
@@ -208,23 +196,23 @@
                     <span id="st-text" class="status-text offline">Вне смены</span>
                 </div>
                 <label class="switch">
-                    <input type="checkbox" id="sh-toggle" onchange="toggleShift()">
+                    <input type="checkbox" id="sh-toggle" onchange="handleShiftToggle()">
                     <span class="slider"></span>
                 </label>
             </div>
         </div>
 
-        <!-- КАРТОЧКА БОНУСА -->
+        <!-- Бонусы на главной -->
         <div class="card bonus-card">
             <div class="bonus-title">
                 <span>Бонус 10 000 ₽ за 10 заказов</span>
-                <span id="stars-count">0/10</span>
+                <span class="stars-count-val">0/10</span>
             </div>
-            <div class="stars-container" id="stars-row">
+            <div class="stars-container stars-row-target">
                 <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
                 <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
             </div>
-            <p id="bonus-status-text" class="bonus-desc">Выполните 10 заказов для получения бонуса</p>
+            <p class="bonus-desc">Выполните 10 заказов для получения бонуса</p>
         </div>
 
         <div class="stats-grid">
@@ -238,31 +226,26 @@
             </div>
         </div>
 
-        <!-- КАРЬЕРНАЯ ЛЕСТНИЦА -->
         <div class="career-title">
             <span>Уровни дохода</span>
-            <span id="total-orders-badge" style="font-size: 10px; color: var(--button-color);">Всего: 0 зак.</span>
+            <span class="total-orders-badge-val" style="font-size: 10px; color: var(--button-color);">Всего: 0 зак.</span>
         </div>
-        
+
         <div class="rates-row">
             <div id="rate-550" class="rate-box active">
-                <span class="rate-check">✓</span>
                 <span class="rate-price">550 ₽</span>
                 <span class="rate-goal">Базовая</span>
             </div>
             <div id="rate-600" class="rate-box locked">
-                <span class="rate-check">✓</span>
                 <span class="rate-price">600 ₽</span>
                 <span class="rate-goal">50 зак.</span>
             </div>
             <div id="rate-650" class="rate-box locked">
-                <span class="rate-check">✓</span>
                 <span class="rate-price">650 ₽</span>
                 <span class="rate-goal">100 зак.</span>
             </div>
         </div>
 
-        <!-- ПРОГРЕСС -->
         <div class="modern-progress">
             <div class="progress-header">
                 <span id="progress-text-left">До повышения (600 ₽)</span>
@@ -272,85 +255,98 @@
             </div>
             <div class="progress-footer">
                 <span id="remaining-orders-text" class="remaining-text">Осталось: 50 зак.</span>
-                <span id="progress-text-right" class="percent-badge">0%</span>
+                <span id="progress-percent" class="percent-badge">0%</span>
             </div>
         </div>
 
-        <!-- БОЛЬШАЯ ПЛАШКА ЗАКАЗОВ -->
         <div class="card orders-banner">
             <div class="pulse-dot"></div>
-            <div class="orders-banner-icon">📍</div>
             <div class="orders-banner-content">
                 <h3>10 заказов рядом</h3>
-                <p>В вашем районе высокий спрос.</p>
-                <button class="btn-view-orders" onclick="handleViewOrders()">Посмотреть заказы</button>
+                <p>Высокий спрос в вашем районе.</p>
+                <button class="btn-view-orders" onclick="showAlert('Для просмотра доступных заказов необходимо включить тумблер смены.')">Посмотреть заказы</button>
             </div>
         </div>
 
-        <button class="btn btn-primary" onclick="handlePayoutRequest()">Заказать выплату</button>
+        <button class="btn btn-primary" onclick="showAlert('Минимальная сумма выплаты составляет 1000 ₽.')">Заказать выплату</button>
     </div>
 
-    <!-- ИСТОРИЯ -->
+    <!-- HISTORY PAGE -->
     <div id="page-history" class="page">
         <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
-        <div class="card" style="text-align: center; padding: 50px 20px; color: var(--hint-color);">
-            <p style="font-weight: 700;">История пуста</p>
+        
+        <!-- Бонусы в Истории -->
+        <div class="card bonus-card">
+            <div class="bonus-title">
+                <span>Бонус 10 000 ₽ за 10 заказов</span>
+                <span class="stars-count-val">0/10</span>
+            </div>
+            <div class="stars-container stars-row-target">
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+            </div>
+            <p class="bonus-desc">Ваш прогресс за текущую неделю</p>
+        </div>
+
+        <div class="card" style="text-align: center; padding: 40px 20px; color: var(--hint-color);">
+            <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;">📦</div>
+            <p style="font-weight: 700;">Список заказов пуст</p>
+            <p style="font-size: 12px; margin-top: 8px;">Здесь будут отображаться ваши выполненные доставки.</p>
         </div>
     </div>
 
-    <!-- ПРОФИЛЬ -->
+    <!-- PROFILE PAGE -->
     <div id="page-profile" class="page">
         <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">Мой профиль</h2>
         <div class="card">
             <div class="input-group">
                 <label>Ваше ФИО</label>
-                <input type="text" id="prof-name" class="input-field" placeholder="Иван Иванов">
+                <input type="text" id="prof-name" class="input-field" placeholder="Иван Иванов" readonly>
             </div>
             <div class="input-group">
                 <label>Номер телефона</label>
-                <input type="tel" id="prof-phone" class="input-field" placeholder="+7 (999) 000-00-00">
+                <input type="tel" id="prof-phone" class="input-field" placeholder="+7 (999) 000-00-00" readonly>
             </div>
         </div>
-        <button id="save-profile-btn" class="btn btn-primary" onclick="saveProfile()">Сохранить изменения</button>
+        
+        <button id="edit-profile-btn" class="btn btn-secondary" onclick="enableProfileEdit()">Изменить данные</button>
+        <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none;">Сохранить изменения</button>
     </div>
 
-    <!-- О КОМПАНИИ -->
+    <!-- ABOUT PAGE -->
     <div id="page-about" class="page">
         <div style="text-align: center; padding: 20px 0;">
             <div class="logo-container" style="width: 80px; height: 80px; margin: 0 auto 12px auto;">
                 <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
             </div>
             <h2 style="font-size: 24px; font-weight: 900;">Topgo</h2>
-            <p style="color: var(--hint-color); font-weight: 700;">Твой путь к успеху</p>
         </div>
         <div class="card">
             <p style="font-size: 13px; line-height: 1.5;">Topgo — это современная логистическая платформа. Мы верим, что доставка должна быть быстрой, а работа — прибыльной.</p>
         </div>
         <div class="card">
             <h4 style="margin-bottom: 8px; font-weight: 800;">Поддержка</h4>
-            <p style="font-size: 12px; color: var(--hint-color); margin-bottom: 12px;">Для активации аккаунта или по вопросам выплат пишите нам:</p>
+            <p style="font-size: 12px; color: var(--hint-color); margin-bottom: 12px;">Для активации аккаунта напишите нашему менеджеру:</p>
             <a href="https://t.me/Topgo_jobbot" target="_blank" class="btn btn-primary" style="text-decoration: none;">Написать в Telegram</a>
         </div>
     </div>
 
-    <div class="footer-tag">@Topgo_jobbot</div>
-
-    <!-- НАВИГАЦИЯ -->
+    <!-- NAVBAR -->
     <nav class="navbar">
         <button id="nav-home" class="nav-link active" onclick="showPage('home')">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             <span>Главная</span>
         </button>
         <button id="nav-history" class="nav-link" onclick="showPage('history')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span>История</span>
         </button>
         <button id="nav-profile" class="nav-link" onclick="showPage('profile')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>Профиль</span>
         </button>
         <button id="nav-about" class="nav-link" onclick="showPage('about')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             <span>О нас</span>
         </button>
     </nav>
@@ -370,110 +366,171 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-
         const tg = window.Telegram.WebApp;
+        tg.expand();
+
         const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
         const userRef = doc(db, "accounts", userId);
 
         onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
-                const data = docSnap.data();
-                updateUI(data);
+                updateUI(docSnap.data());
             } else {
                 createNewUser();
             }
         });
 
         async function createNewUser() {
-            const newUser = {
-                name: tg.initDataUnsafe?.user?.first_name || "Новый курьер",
+            await setDoc(userRef, {
+                name: tg.initDataUnsafe?.user?.first_name || "Курьер",
                 phone: "",
                 status: "inactive",
                 balance: 0,
                 orders_today: 0,
-                total_orders: 0,
-                created_at: new Date()
-            };
-            await setDoc(userRef, newUser);
+                total_orders: 0
+            });
         }
 
         function updateUI(data) {
             const total = data.total_orders || 0;
+            
+            // Информация в хеддере
             document.getElementById('home-name').innerText = data.name || "Курьер";
             document.getElementById('display-id').innerText = "ID: " + userId;
-            document.getElementById('total-orders-badge').innerText = "Всего: " + total + " зак.";
+            
+            // Статистика
             document.getElementById('stat-orders').innerText = data.orders_today || 0;
             document.getElementById('stat-balance').innerText = (data.balance || 0) + " ₽";
-
-            // Stars
-            const stars = document.querySelectorAll('#page-home .star');
-            stars.forEach((s, idx) => idx < total ? s.classList.add('active') : s.classList.remove('active'));
-            document.getElementById('stars-count').innerText = Math.min(total, 10) + "/10";
             
-            // Rates Logic (same as before)
+            // Бейджи общего кол-ва заказов (все экземпляры)
+            document.querySelectorAll('.total-orders-badge-val').forEach(el => {
+                el.innerText = "Всего: " + total + " зак.";
+            });
+
+            // Обновление звезд во всех разделах
+            const starsContainers = document.querySelectorAll('.stars-row-target');
+            starsContainers.forEach(container => {
+                const stars = container.querySelectorAll('.star');
+                stars.forEach((s, idx) => {
+                    idx < total ? s.classList.add('active') : s.classList.remove('active');
+                });
+            });
+
+            // Обновление текста счетчика (0/10) во всех разделах
+            document.querySelectorAll('.stars-count-val').forEach(el => {
+                el.innerText = Math.min(total, 10) + "/10";
+            });
+
+            // Карьерный прогресс
             let nextGoal = 50; let prevGoal = 0;
             if (total >= 100) { nextGoal = 100; prevGoal = 0; }
             else if (total >= 50) { nextGoal = 100; prevGoal = 50; }
-            else { nextGoal = 50; prevGoal = 0; }
+            
             const progressVal = total >= 100 ? 100 : Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
             document.getElementById('rate-progress-fill').style.width = progressVal + "%";
-            document.getElementById('progress-text-right').innerText = Math.round(progressVal) + "%";
+            document.getElementById('progress-percent').innerText = Math.round(progressVal) + "%";
+            document.getElementById('remaining-orders-text').innerText = "Осталось: " + Math.max(0, nextGoal - total) + " зак.";
 
-            // Status UI
-            // Important: We don't force 'sh-toggle' checked here because of the "bounce back" logic
-            const isOnline = data.status === 'active';
-            if (!window.isToggling) {
-                document.getElementById('sh-toggle').checked = isOnline;
-                document.getElementById('st-text').innerText = isOnline ? 'На смене' : 'Вне смены';
-                document.getElementById('st-text').className = isOnline ? 'status-text online' : 'status-text offline';
-                document.getElementById('st-dot').className = isOnline ? 'dot bg-online' : 'dot bg-offline';
+            // Уровни (подсветка)
+            document.getElementById('rate-600').className = total >= 50 ? 'rate-box active' : 'rate-box locked';
+            document.getElementById('rate-650').className = total >= 100 ? 'rate-box active' : 'rate-box locked';
+
+            // Данные профиля (только если не в режиме редактирования)
+            const profNameInput = document.getElementById('prof-name');
+            const profPhoneInput = document.getElementById('prof-phone');
+            if (profNameInput.readOnly) {
+                profNameInput.value = data.name || "";
+                profPhoneInput.value = data.phone || "";
             }
         }
-
-        // Global Actions
-        window.handlePayoutRequest = () => {
-            tg.showAlert("Минимальная сумма выплаты составляет 1000 ₽.");
-        };
-
-        window.handleViewOrders = () => {
-            tg.showAlert("Для просмотра доступных заказов необходимо включить тумблер смены.");
-        };
-
-        window.toggleShift = async () => {
-            const toggle = document.getElementById('sh-toggle');
-            if (toggle.checked) {
-                window.isToggling = true;
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-                
-                // Эффект "Активации" на секунду
-                setTimeout(() => {
-                    toggle.checked = false;
-                    window.isToggling = false;
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                    tg.showConfirm(
-                        "Ваш аккаунт не активирован. Для активации обратитесь в поддержку в разделе 'О нас'.",
-                        (ok) => { if(ok) showPage('about'); }
-                    );
-                }, 1000);
-            }
-        };
 
         window.saveProfile = async () => {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
+            
             await updateDoc(userRef, { name, phone });
-            tg.showAlert("Профиль обновлен!");
+            
+            // Возвращаем в режим чтения
+            document.getElementById('prof-name').readOnly = true;
+            document.getElementById('prof-phone').readOnly = true;
+            document.getElementById('edit-profile-btn').style.display = 'block';
+            document.getElementById('save-profile-btn').style.display = 'none';
+            
+            showAlert("Данные успешно сохранены!");
         };
     </script>
 
     <script>
+        const tg = window.Telegram.WebApp;
+        let modalCallback = null;
+        let isProcessingToggle = false;
+
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + pageId).classList.add('active');
-            if (window.Telegram?.WebApp?.HapticFeedback) window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-            window.scrollTo(0, 0);
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.scrollTo(0,0);
+        }
+
+        function showAlert(text, callback = null) {
+            document.getElementById('modal-text-content').innerText = text;
+            document.getElementById('custom-modal-overlay').style.display = 'flex';
+            modalCallback = callback;
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal-overlay').style.display = 'none';
+            if (modalCallback) modalCallback();
+            modalCallback = null;
+        }
+
+        function handleShiftToggle() {
+            if (isProcessingToggle) return;
+            const toggle = document.getElementById('sh-toggle');
+            const stText = document.getElementById('st-text');
+            const stDot = document.getElementById('st-dot');
+
+            if (toggle.checked) {
+                isProcessingToggle = true;
+                
+                // МГНОВЕННО меняем текст на «На смене» зеленым
+                stText.innerText = "На смене";
+                stText.className = "status-text online";
+                stDot.className = "dot bg-online";
+                
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+                
+                // Имитация проверки сервера
+                setTimeout(() => {
+                    toggle.checked = false;
+                    isProcessingToggle = false;
+                    
+                    // Возвращаем как было
+                    stText.innerText = "Вне смены";
+                    stText.className = "status-text offline";
+                    stDot.className = "dot bg-offline";
+                    
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                    showAlert("Ваш аккаунт не активирован. Обратитесь в поддержку.", () => {
+                        showPage('about');
+                    });
+                }, 1000);
+            }
+        }
+
+        // Логика блокировки профиля
+        function enableProfileEdit() {
+            document.getElementById('prof-name').readOnly = false;
+            document.getElementById('prof-phone').readOnly = false;
+            document.getElementById('prof-name').focus();
+            
+            document.getElementById('edit-profile-btn').style.display = 'none';
+            document.getElementById('save-profile-btn').style.display = 'block';
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
     </script>
 </body>
