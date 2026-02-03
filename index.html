@@ -2,584 +2,477 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Topgo Courier App</title>
-    
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TopGo Server Deployment Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --bg-color: #f0f0f2;
-            --text-color: #000000;
-            --hint-color: #999999;
-            --button-color: #248bcf;
-            --button-text: #ffffff;
-            --secondary-bg: #ffffff;
-            --accent-green: #34c759;
-            --accent-gold: #ffcc00;
-            --input-bg: #f4f4f7;
-            --border-radius: 16px;
-        }
-
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding: 12px 12px 100px 12px;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* warm gray-100 */
+            color: #1f2937; /* gray-800 */
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Chart Container Styling per Requirements */
+        .chart-container {
+            position: relative;
             width: 100%;
-            min-height: 100vh;
-            line-height: 1.2;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
         }
 
-        .page { display: none; }
-        .page.active { display: block; animation: fadeIn 0.2s ease-out; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Custom Modal System */
-        #custom-modal-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center;
-            z-index: 9999; padding: 20px; backdrop-filter: blur(2px);
+        /* Custom Scrollbar for Terminal */
+        .terminal-scroll::-webkit-scrollbar {
+            width: 8px;
         }
-        .modal-card {
-            background: white; border-radius: 20px; width: 100%; max-width: 320px;
-            padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .terminal-scroll::-webkit-scrollbar-track {
+            background: #1f2937;
         }
-        @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-text { font-size: 15px; font-weight: 600; line-height: 1.4; margin-bottom: 20px; color: #000; }
-        .modal-btn { 
-            width: 100%; padding: 14px; border-radius: 12px; border: none; 
-            font-size: 15px; font-weight: 700; cursor: pointer; 
-            background: var(--button-color); color: white;
+        .terminal-scroll::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
         }
 
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-        .header-left { display: flex; align-items: center; gap: 12px; }
-        .logo-container {
-            width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #ffffff;
-            background-color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        /* Interactive Code Line Hover */
+        .code-line:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            cursor: help;
         }
-        .logo-container img { width: 100%; height: 100%; object-fit: contain; }
-        .header-info h1 { font-size: 17px; font-weight: 800; }
-        .header-info p { font-size: 10px; color: var(--hint-color); font-weight: 600; }
-        
-        .status-block { display: flex; flex-direction: column; align-items: flex-end; }
-        .status-label { display: flex; align-items: center; margin-bottom: 4px; }
-        .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
-        .status-text { font-size: 9px; font-weight: 800; text-transform: uppercase; }
-        .online { color: var(--accent-green) !important; }
-        .offline { color: #ff3b30 !important; }
-        .bg-online { background-color: var(--accent-green); }
-        .bg-offline { background-color: #ff3b30; }
 
-        /* Switch */
-        .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #d1d1d6; transition: .3s; border-radius: 20px;
+        /* Fade Animation */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
         }
-        .slider:before {
-            position: absolute; content: ""; height: 18px; width: 18px;
-            left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        input:checked + .slider { background-color: var(--accent-green); }
-        input:checked + .slider:before { transform: translateX(18px); }
-
-        /* Cards */
-        .card { background-color: var(--secondary-bg); border-radius: var(--border-radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px; }
-        
-        /* Bonus Card */
-        .bonus-card { background: linear-gradient(135deg, #248bcf 0%, #1a6fa5 100%); color: white; position: relative; overflow: hidden; }
-        .bonus-card::after { content: '★'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.1; transform: rotate(-15deg); }
-        .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; position: relative; z-index: 1; }
-        .stars-container { display: flex; justify-content: space-between; margin-bottom: 8px; position: relative; z-index: 1; }
-        .star { font-size: 20px; color: rgba(255,255,255,0.2); transition: all 0.3s ease; text-shadow: 0 0 5px rgba(0,0,0,0.1); }
-        .star.active { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); transform: scale(1.1); }
-        .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.9; position: relative; z-index: 1; }
-
-        /* Stats */
-        .stats-grid { display: flex; gap: 10px; margin-bottom: 12px; }
-        .stat-card { flex: 1; text-align: center; }
-        .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; display: block; }
-        .stat-value { font-size: 18px; font-weight: 900; }
-
-        /* Rates */
-        .career-title { font-size: 12px; font-weight: 800; text-transform: uppercase; margin: 10px 4px; display: flex; justify-content: space-between; align-items: center; }
-        .rates-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .rate-box { flex: 1; background: var(--secondary-bg); padding: 12px 8px; border-radius: 12px; text-align: center; border: 2px solid transparent; position: relative; transition: 0.3s; }
-        .rate-box.active { border-color: var(--accent-green); background: #fafffb; }
-        .rate-box.locked { opacity: 0.6; background: #fafafa; }
-        .rate-price { font-size: 14px; font-weight: 900; display: block; }
-        .rate-goal { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-top: 4px; display: block; }
-
-        /* Progress Bar */
-        .modern-progress { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
-        .progress-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; color: var(--hint-color); }
-        .progress-track { height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
-        .progress-bar { height: 100%; background: var(--button-color); width: 0%; transition: width 0.6s ease; }
-        .progress-footer { display: flex; justify-content: space-between; align-items: center; }
-        .remaining-text { font-size: 10px; font-weight: 700; color: var(--button-color); }
-        .percent-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
-
-        /* Profile Special */
-        .profile-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .p-tile { background: white; padding: 16px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .p-tile svg { width: 24px; height: 24px; color: var(--button-color); }
-        .p-tile span { font-size: 11px; font-weight: 700; }
-
-        /* Forms */
-        .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; padding-left: 4px; }
-        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; color: var(--text-color); outline: none; transition: background 0.2s; }
-        .input-field:read-only { background-color: #ffffff; color: #555; }
-
-        /* FAQ & Instructions */
-        .faq-item { border-bottom: 1px solid #f0f0f2; padding: 12px 0; }
-        .faq-item:last-child { border-bottom: none; }
-        .faq-question { font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .faq-answer { font-size: 12px; color: #666; padding-top: 8px; line-height: 1.4; display: none; }
-        .faq-item.open .faq-answer { display: block; }
-        .faq-item.open .faq-icon { transform: rotate(180deg); }
-        .faq-icon { transition: 0.3s; font-size: 10px; color: var(--button-color); }
-
-        /* Buttons */
-        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-bottom: 8px; }
-        .btn-primary { background-color: var(--button-color); color: var(--button-text); box-shadow: 0 4px 10px rgba(36, 139, 207, 0.2); }
-        .btn-secondary { background-color: #e5e5ea; color: #000; }
-
-        /* Navbar */
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: var(--secondary-bg); display: flex; border-top: 1px solid rgba(0,0,0,0.05); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--hint-color); background: none; border: none; }
-        .nav-link.active { color: var(--button-color); }
-        .nav-link span { font-size: 9px; font-weight: 700; margin-top: 4px; }
-        .nav-link svg { width: 22px; height: 22px; }
     </style>
+    <!-- Chosen Palette: Slate (Dark/Professional) + Emerald (Success) + Indigo (Action) -->
+    <!-- Application Structure Plan:
+         1. Header: Dashboard title and overall progress summary.
+         2. Overview Dashboard: High-level visualization of the server architecture (Chart.js) to explain WHAT we are building before HOW.
+         3. Interactive Walkthrough (The Core): A split-view section. Left side: Navigation of the 5 steps. Right side: A dynamic "Virtual Terminal" and "File Editor" that simulates the actions described in the source report. This transforms the static text commands into an engaging flow.
+         4. Configuration Explorer: Specifically for the Nginx step, an interactive code block where users can hover over lines to understand the proxy logic.
+         5. Critical Notes & Summary: A grid of cards highlighting the database, port, and SQL query requirements found at the end of the report.
+    -->
 </head>
-<body class="theme-tg">
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
-    <!-- Custom Modal Overlay -->
-    <div id="custom-modal-overlay">
-        <div class="modal-card">
-            <p id="modal-text-content" class="modal-text">Сообщение</p>
-            <button id="modal-primary-btn" class="modal-btn" onclick="closeModal()">Понятно</button>
-        </div>
-    </div>
-
-    <!-- HOME PAGE -->
-    <div id="page-home" class="page active">
-        <div class="header">
-            <div class="header-left">
-                <div class="logo-container">
-                    <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
+    <!-- Navbar -->
+    <nav class="bg-slate-900 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🚀</span>
+                    <span class="font-bold text-xl tracking-tight">TopGo Deployer</span>
                 </div>
-                <div class="header-info">
-                    <h1 id="home-name">Загрузка...</h1>
-                    <p id="display-id">ID: ...</p>
-                </div>
-            </div>
-            <div class="status-block">
-                <div class="status-label">
-                    <span id="st-dot" class="dot bg-offline"></span>
-                    <span id="st-text" class="status-text offline">Вне смены</span>
-                </div>
-                <label class="switch">
-                    <input type="checkbox" id="sh-toggle" onchange="handleShiftToggle()">
-                    <span class="slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <div class="card bonus-card">
-            <div class="bonus-title">
-                <span>Бонус 10 000 ₽ за 10 заказов</span>
-                <span class="stars-count-val">0/10</span>
-            </div>
-            <div class="stars-container stars-row-target">
-                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-            </div>
-            <p class="bonus-desc">Выполните 10 заказов для получения бонуса</p>
-        </div>
-
-        <div class="stats-grid">
-            <div class="card stat-card">
-                <span class="stat-label">За сегодня</span>
-                <div id="stat-orders" class="stat-value">0</div>
-            </div>
-            <div class="card stat-card">
-                <span class="stat-label">Баланс</span>
-                <div id="stat-balance" class="stat-value" style="color: var(--accent-green)">0 ₽</div>
-            </div>
-        </div>
-
-        <div class="career-title">
-            <span>Уровни дохода</span>
-            <span class="total-orders-badge-val" style="font-size: 10px; color: var(--button-color);">Всего: 0 зак.</span>
-        </div>
-
-        <div class="rates-row">
-            <div id="rate-550" class="rate-box active">
-                <span class="rate-price">550 ₽</span>
-                <span class="rate-goal">Базовая</span>
-            </div>
-            <div id="rate-600" class="rate-box locked">
-                <span class="rate-price">600 ₽</span>
-                <span class="rate-goal">50 зак.</span>
-            </div>
-            <div id="rate-650" class="rate-box locked">
-                <span class="rate-price">650 ₽</span>
-                <span class="rate-goal">100 зак.</span>
-            </div>
-        </div>
-
-        <div class="modern-progress">
-            <div class="progress-header">
-                <span id="progress-text-left">До повышения (600 ₽)</span>
-            </div>
-            <div class="progress-track">
-                <div id="rate-progress-fill" class="progress-bar"></div>
-            </div>
-            <div class="progress-footer">
-                <span id="remaining-orders-text" class="remaining-text">Осталось: 50 зак.</span>
-                <span id="progress-percent" class="percent-badge">0%</span>
-            </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="showAlert('Минимальная сумма выплаты составляет 500 ₽.')">Заказать выплату</button>
-    </div>
-
-    <!-- PROFILE PAGE -->
-    <div id="page-profile" class="page">
-        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">Мой профиль</h2>
-        <div class="card">
-            <div class="input-group">
-                <label>Ваше ФИО</label>
-                <input type="text" id="prof-name" class="input-field" placeholder="Иван Иванов" readonly>
-            </div>
-            <div class="input-group">
-                <label>Номер телефона</label>
-                <input type="tel" id="prof-phone" class="input-field" placeholder="+7 (999) 000-00-00" readonly>
-            </div>
-        </div>
-        
-        <div class="profile-btn-grid">
-            <button class="p-tile" onclick="enableProfileEdit()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                <span id="edit-profile-btn-text">Личные данные</span>
-            </button>
-            <button class="p-tile" onclick="showAlert('Раздел реквизитов счета находится в разработке и будет доступен после активации кабинета.')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-                <span>Реквизиты счета</span>
-            </button>
-        </div>
-
-        <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none; margin-top: 16px;">Сохранить изменения</button>
-    </div>
-
-    <!-- ABOUT PAGE (Инфо) -->
-    <div id="page-about" class="page">
-        <div style="text-align: center; padding: 20px 0;">
-            <div class="logo-container" style="width: 80px; height: 80px; margin: 0 auto 12px auto;">
-                <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
-            </div>
-            <h2 style="font-size: 24px; font-weight: 900;">Topgo</h2>
-            <p style="font-size: 12px; color: var(--hint-color); font-weight: 600;">Версия 1.0.7</p>
-        </div>
-
-        <div class="card">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Система мотивации</h3>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Как получить бонус 10 000 ₽? <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    Данный бонус является приветственным для новых курьеров. Чтобы его получить:<br>
-                    1. Выполните свои первые 10 заказов в системе.<br>
-                    2. Следите за прогрессом по звездам на главном экране.<br>
-                    3. Как только 10-я звезда станет золотой, бонус будет начислен на ваш баланс автоматически.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Как повысить ставку за заказ? <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    В Topgo действует накопительная система уровней дохода:<br>
-                    • <b>Базовая ставка:</b> 550 ₽ за заказ.<br>
-                    • <b>Уровень 2 (600 ₽):</b> Активируется автоматически после выполнения 50 заказов за всё время.<br>
-                    • <b>Уровень 3 (650 ₽):</b> Максимальная ставка, активируется после 100 выполненных заказов.<br>
-                    Ваш текущий прогресс до следующего уровня отображается на шкале внизу главного экрана.
+                <div class="text-sm text-slate-400">
+                    Руководство по настройке Ubuntu Server
                 </div>
             </div>
         </div>
-
-        <div class="card">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Инструкции курьера</h3>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Клиент не отвечает на звонок <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    1. Попробуйте позвонить 3 раза с интервалом в 2 минуты.<br>
-                    2. Напишите в чат (если доступно) или СМС.<br>
-                    3. Подождите 10 минут на точке.<br>
-                    4. Если ответа нет — свяжитесь с поддержкой через бот для отмены.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Как сделать возврат в аптеку? <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    Если заказ отменен или клиент отказался, товар необходимо вернуть в ту же аптеку, где вы его забирали. Обязательно попросите фармацевта подтвердить возврат в системе.
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">База знаний (FAQ)</h3>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Когда я получу выплату? <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    Выплаты производятся ежедневно. Вы можете заказать выплату, как только ваш баланс достигнет минимальной суммы в 500 ₽. Деньги поступают по указанным вами реквизитам.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Что я буду доставлять? <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    Доставка из аптек: товары для здоровья, косметика и безрецептурные препараты. Все заказы уже оплачены в приложении, вам не нужно работать с наличными деньгами клиентов.
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h4 style="margin-bottom: 8px; font-weight: 800;">Поддержка</h4>
-            <a href="https://t.me/Topgo_jobbot" target="_blank" class="btn btn-primary" style="text-decoration: none;">Написать в Telegram</a>
-        </div>
-    </div>
-
-    <!-- HISTORY PAGE -->
-    <div id="page-history" class="page">
-        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
-        
-        <div class="card bonus-card" style="margin-bottom: 20px;">
-            <div class="bonus-title">
-                <span>Прогресс бонуса</span>
-                <span class="stars-count-val">0/10</span>
-            </div>
-            <div class="stars-container stars-row-target">
-                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-            </div>
-            <p class="bonus-desc">10 000 ₽ за 10 выполненных заказов</p>
-        </div>
-
-        <div class="card" style="text-align: center; padding: 40px 20px; color: var(--hint-color);">
-            <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;">📦</div>
-            <p style="font-weight: 700;">Список выполненных заказов пуст</p>
-        </div>
-    </div>
-
-    <!-- NAVBAR -->
-    <nav class="navbar">
-        <button id="nav-home" class="nav-link active" onclick="showPage('home')">
-            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            <span>Главная</span>
-        </button>
-        <button id="nav-history" class="nav-link" onclick="showPage('history')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <span>История</span>
-        </button>
-        <button id="nav-profile" class="nav-link" onclick="showPage('profile')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Профиль</span>
-        </button>
-        <button id="nav-about" class="nav-link" onclick="showPage('about')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>Инфо</span>
-        </button>
     </nav>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-8 space-y-12">
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAbrT8SPEIAWPLJqaUNYK-JFBiWoTvowBc",
-            authDomain: "topgo-app.firebaseapp.com",
-            projectId: "topgo-app",
-            storageBucket: "topgo-app.firebasestorage.app",
-            messagingSenderId: "760416053784",
-            appId: "1:760416053784:web:db23088a0ae398fe99716d"
-        };
+        <!-- Section 1: Intro & Architecture -->
+        <!-- Visualization & Content Choices:
+             - Goal: Explain the system components (Ubuntu, Python, Nginx, SQLite).
+             - Viz: Chart.js Doughnut chart to show the "stack" composition.
+             - Interaction: None (informational).
+             - Justification: Users need to understand the 'ingredients' before cooking. Chart.js is clean and responsive.
+        -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <div>
+                    <h1 class="text-3xl font-bold text-slate-800 mb-4">Архитектура Сервера TopGo</h1>
+                    <p class="text-slate-600 mb-6 leading-relaxed">
+                        Данное интерактивное руководство проведет вас через процесс развертывания бэкенда и фронтенда TopGo на собственном сервере Ubuntu с доменом <span class="font-mono bg-slate-100 px-1 py-0.5 rounded text-indigo-600">be-beauty-stil.ru</span>. Мы настроим полный стек технологий для автономной работы без сторонних сервисов.
+                    </p>
+                    <ul class="space-y-3 text-slate-700">
+                        <li class="flex items-center space-x-3">
+                            <span class="w-2 h-2 bg-indigo-500 rounded-full"></span>
+                            <span><strong>OS:</strong> Ubuntu Server (База системы)</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                            <span><strong>Backend:</strong> Python + FastAPI + Uvicorn</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+                            <span><strong>Web Server:</strong> Nginx (Обратный прокси & SSL)</span>
+                        </li>
+                        <li class="flex items-center space-x-3">
+                            <span class="w-2 h-2 bg-rose-500 rounded-full"></span>
+                            <span><strong>Database:</strong> SQLite (Локальное хранение)</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex flex-col items-center justify-center bg-slate-50 rounded-xl p-4">
+                    <div class="chart-container">
+                        <canvas id="stackChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 text-center">Компоненты системы TopGo</p>
+                </div>
+            </div>
+        </section>
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        <!-- Section 2: Interactive Deployment Walkthrough -->
+        <!-- Visualization & Content Choices:
+             - Goal: Guide user through 5 sequential steps found in the report.
+             - Viz: Custom UI "Virtual Terminal" combined with a stepper menu.
+             - Interaction: Clicking steps updates the content. Clicking "Simulate Command" in the terminal types out the text.
+             - Justification: Provides a safe "sandbox" feel to learn CLI commands without breaking a real server.
+        -->
+        <section class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden fade-in">
+            <div class="bg-slate-900 p-4 border-b border-slate-700 flex justify-between items-center">
+                <h2 class="text-white font-bold flex items-center space-x-2">
+                    <span>💻</span>
+                    <span>Мастер Установки</span>
+                </h2>
+                <div class="flex space-x-2">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                </div>
+            </div>
 
-        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
-        const userRef = doc(db, "accounts", userId);
+            <div class="grid grid-cols-1 lg:grid-cols-12 min-h-[600px]">
+                <!-- Sidebar Navigation -->
+                <div class="lg:col-span-3 bg-slate-50 border-r border-slate-200 p-4">
+                    <div class="space-y-2" id="step-nav">
+                        <!-- Buttons generated by JS -->
+                    </div>
+                </div>
 
-        let userStatus = "inactive";
+                <!-- Content Area -->
+                <div class="lg:col-span-9 p-6 md:p-8 flex flex-col">
+                    <div id="step-content" class="flex-grow">
+                        <!-- Dynamic Content injected by JS -->
+                    </div>
+                    
+                    <!-- Action Bar -->
+                    <div class="mt-8 pt-6 border-t border-slate-100 flex justify-between items-center">
+                        <button id="prevBtn" class="px-4 py-2 rounded-lg text-slate-500 hover:bg-slate-100 disabled:opacity-50 transition font-medium">← Назад</button>
+                        <span id="step-indicator" class="text-sm font-mono text-slate-400">Шаг 1 из 5</span>
+                        <button id="nextBtn" class="px-6 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-200 transition font-medium">Далее →</button>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        onSnapshot(userRef, (docSnap) => {
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                userStatus = data.status || "inactive";
-                updateUI(data);
-            } else {
-                createNewUser();
+        <!-- Section 3: Critical Configuration & Database -->
+        <!-- Visualization & Content Choices:
+             - Goal: Highlight the "Important Notes" section (DB, Ports, SQL format).
+             - Viz: Grid of info cards with specific formatting for code snippets.
+             - Interaction: None.
+             - Justification: These are critical constraints that shouldn't be missed. Cards make them distinct.
+        -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in">
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-indigo-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800">📦 База Данных</h3>
+                    <span class="text-2xl">🗄️</span>
+                </div>
+                <p class="text-sm text-slate-600 mb-2">Файл <code class="bg-slate-100 px-1 py-0.5 rounded text-rose-600 font-mono text-xs">couriers.db</code> создается автоматически при первом запуске.</p>
+                <div class="h-1 w-full bg-slate-100 rounded overflow-hidden">
+                    <div class="h-full bg-indigo-500 w-full"></div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-emerald-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800">🔌 Порты & Прокси</h3>
+                    <span class="text-2xl">🌐</span>
+                </div>
+                <p class="text-sm text-slate-600">Приложение работает локально на порту <strong class="text-slate-800">8000</strong>. Nginx перенаправляет внешний трафик с 443 (HTTPS) -> 8000.</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-amber-500">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800">⚠️ SQL Формат</h3>
+                    <span class="text-2xl">📝</span>
+                </div>
+                <p class="text-sm text-slate-600 mb-2">Строгое требование к запросам:</p>
+                <code class="block bg-slate-800 text-green-400 p-2 rounded text-xs font-mono break-all">WHERE id = [[CURRENT_ACC_ID]]</code>
+                <p class="text-xs text-slate-400 mt-1">Без кавычек вокруг ID!</p>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-8 mt-12">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm">© 2026 TopGo Deployer. Основано на технической документации.</p>
+        </div>
+    </footer>
+
+    <!-- Script Logic -->
+    <script>
+        // Data derived from setup_guide.md
+        const guideSteps = [
+            {
+                id: 1,
+                title: "Подключение и Обновление",
+                icon: "⚡",
+                desc: "Первый шаг — подготовка сервера к установке ПО. Нам нужно обновить списки пакетов.",
+                commands: [
+                    { cmd: "ssh root@be-beauty-stil.ru", comment: "# Подключаемся к серверу" },
+                    { cmd: "sudo apt update && sudo apt upgrade -y", comment: "# Обновляем системные пакеты" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Python Окружение",
+                icon: "🐍",
+                desc: "Устанавливаем Python, менеджер пакетов pip и необходимые библиотеки для бота и сервера.",
+                commands: [
+                    { cmd: "sudo apt install python3-pip python3-venv -y", comment: "# Ставим pip и venv" },
+                    { cmd: "mkdir ~/topgo && cd ~/topgo", comment: "# Создаем папку проекта" },
+                    { cmd: "pip install fastapi uvicorn aiogram", comment: "# Ставим FastAPI, Uvicorn, Aiogram" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Файлы Проекта",
+                icon: "📄",
+                desc: "Создаем основные файлы приложения. Используем редактор nano.",
+                commands: [
+                    { cmd: "nano app.py", comment: "# Вставляем код бэкенда..." },
+                    { cmd: "nano index.html", comment: "# Вставляем код фронтенда..." }
+                ],
+                extraInfo: "Убедитесь, что файлы app.py и index.html находятся в одной директории."
+            },
+            {
+                id: 4,
+                title: "Nginx и HTTPS",
+                icon: "🔒",
+                desc: "Настраиваем веб-сервер Nginx для проксирования запросов и получаем SSL сертификат.",
+                isConfig: true,
+                configContent: `server {
+    listen 80;
+    server_name be-beauty-stil.ru;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}`,
+                commands: [
+                    { cmd: "sudo apt install nginx -y", comment: "# Установка Nginx" },
+                    { cmd: "sudo nano /etc/nginx/sites-available/topgo", comment: "# Создаем конфиг" },
+                    { cmd: "sudo ln -s /etc/nginx/sites-available/topgo /etc/nginx/sites-enabled/", comment: "# Активируем" },
+                    { cmd: "sudo nginx -t", comment: "# Проверка синтаксиса" },
+                    { cmd: "sudo systemctl restart nginx", comment: "# Перезапуск" },
+                    { cmd: "sudo certbot --nginx -d be-beauty-stil.ru", comment: "# Получение SSL" }
+                ]
+            },
+            {
+                id: 5,
+                title: "Фоновая Работа",
+                icon: "⚙️",
+                desc: "Запускаем приложение в фоновом режиме через screen, чтобы оно работало после отключения.",
+                commands: [
+                    { cmd: "sudo apt install screen -y", comment: "# Ставим утилиту screen" },
+                    { cmd: "screen -S topgo", comment: "# Создаем сессию" },
+                    { cmd: "python3 app.py", comment: "# Запускаем сервер" },
+                    { cmd: "# Нажмите Ctrl+A, затем D", comment: "# Чтобы свернуть окно" }
+                ]
             }
-        });
+        ];
 
-        async function createNewUser() {
-            await setDoc(userRef, {
-                name: tg.initDataUnsafe?.user?.first_name || "Курьер",
-                phone: "",
-                status: "inactive",
-                balance: 0,
-                orders_today: 0,
-                total_orders: 0
+        let currentStepIndex = 0;
+
+        // --- Visualization Init (Chart.js) ---
+        function initChart() {
+            const ctx = document.getElementById('stackChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['OS (Ubuntu)', 'Backend (Python)', 'Web Server (Nginx)', 'DB (SQLite)'],
+                    datasets: [{
+                        data: [25, 35, 25, 15],
+                        backgroundColor: [
+                            '#64748b', // Slate 500
+                            '#10b981', // Emerald 500
+                            '#f59e0b', // Amber 500
+                            '#f43f5e'  // Rose 500
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: "'Inter', sans-serif", size: 12 },
+                                padding: 20
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
             });
         }
 
-        window.getStatus = () => userStatus;
-
-        function updateUI(data) {
-            const total = data.total_orders || 0;
-            document.getElementById('home-name').innerText = data.name || "Курьер";
-            document.getElementById('display-id').innerText = "ID: " + userId;
-            document.getElementById('stat-orders').innerText = data.orders_today || 0;
-            document.getElementById('stat-balance').innerText = (data.balance || 0) + " ₽";
+        // --- Stepper Logic ---
+        function renderNav() {
+            const navContainer = document.getElementById('step-nav');
+            navContainer.innerHTML = '';
             
-            document.querySelectorAll('.total-orders-badge-val').forEach(el => el.innerText = "Всего: " + total + " зак.");
+            guideSteps.forEach((step, index) => {
+                const isActive = index === currentStepIndex;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center space-x-3 mb-2 ${
+                    isActive 
+                    ? 'bg-white shadow-md border border-indigo-100 text-indigo-700 font-semibold' 
+                    : 'text-slate-500 hover:bg-slate-100 hover:text-slate-700'
+                }`;
+                btn.onclick = () => goToStep(index);
+                btn.innerHTML = `
+                    <span class="text-lg">${step.icon}</span>
+                    <span class="text-sm">${step.title}</span>
+                    ${isActive ? '<span class="ml-auto text-indigo-500">●</span>' : ''}
+                `;
+                navContainer.appendChild(btn);
+            });
+        }
 
-            const starsContainers = document.querySelectorAll('.stars-row-target');
-            starsContainers.forEach(container => {
-                const stars = container.querySelectorAll('.star');
-                stars.forEach((s, idx) => {
-                    idx < total ? s.classList.add('active') : s.classList.remove('active');
+        function renderContent() {
+            const step = guideSteps[currentStepIndex];
+            const container = document.getElementById('step-content');
+            
+            // Build command list HTML
+            let commandsHtml = '';
+            if (step.commands) {
+                commandsHtml = step.commands.map(c => `
+                    <div class="font-mono text-sm mb-3">
+                        <div class="text-slate-500 select-none mb-1 text-xs">${c.comment}</div>
+                        <div class="bg-slate-800 text-green-400 p-3 rounded-lg flex items-center group cursor-pointer relative overflow-hidden command-block">
+                            <span class="text-slate-500 mr-2 select-none">$</span>
+                            <span class="typing-target">${c.cmd}</span>
+                            <div class="absolute right-2 opacity-0 group-hover:opacity-100 transition text-xs text-slate-400 bg-slate-700 px-2 py-1 rounded">Нажми чтобы копировать</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Config View for Nginx
+            let configHtml = '';
+            if (step.isConfig) {
+                configHtml = `
+                    <div class="mt-6 mb-4">
+                        <p class="text-xs font-bold text-slate-500 uppercase mb-2">Конфигурация /etc/nginx/sites-available/topgo</p>
+                        <div class="bg-slate-900 text-slate-300 p-4 rounded-lg font-mono text-xs overflow-x-auto border-l-4 border-amber-500 relative group">
+                            <pre>${step.configContent}</pre>
+                            <div class="absolute top-2 right-2 bg-amber-500/20 text-amber-300 px-2 py-1 rounded text-[10px] hidden group-hover:block">Обратите внимание на proxy_pass</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Main Layout injection
+            container.innerHTML = `
+                <div class="fade-in h-full flex flex-col">
+                    <div class="mb-6">
+                        <span class="text-indigo-600 font-bold tracking-wider text-xs uppercase mb-1 block">Шаг ${step.id}</span>
+                        <h2 class="text-2xl font-bold text-slate-900 mb-2">${step.title}</h2>
+                        <p class="text-slate-600">${step.desc}</p>
+                    </div>
+
+                    ${configHtml}
+
+                    <div class="bg-slate-950 rounded-xl p-4 shadow-inner flex-grow flex flex-col terminal-scroll overflow-y-auto max-h-[400px]">
+                        <div class="flex items-center space-x-2 mb-4 border-b border-slate-800 pb-2">
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                            <div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+                            <span class="text-xs text-slate-500 font-mono ml-2">root@be-beauty-stil.ru:~</span>
+                        </div>
+                        <div class="space-y-1">
+                            ${commandsHtml}
+                        </div>
+                    </div>
+                    
+                    ${step.extraInfo ? `<div class="mt-4 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg flex items-start"><span class="mr-2">ℹ️</span>${step.extraInfo}</div>` : ''}
+                </div>
+            `;
+
+            // Add click listeners for copy effect
+            document.querySelectorAll('.command-block').forEach(block => {
+                block.addEventListener('click', function() {
+                    const text = this.querySelector('.typing-target').innerText;
+                    // Simulation of copy
+                    const originalBg = this.className;
+                    this.classList.remove('bg-slate-800');
+                    this.classList.add('bg-slate-700');
+                    setTimeout(() => {
+                        this.classList.add('bg-slate-800');
+                        this.classList.remove('bg-slate-700');
+                    }, 200);
+                    
+                    // Native clipboard API (might be blocked in iframe, using execCommand fallback if needed, but modern browsers support this)
+                    navigator.clipboard.writeText(text).catch(err => console.log('Copy failed', err));
                 });
             });
 
-            document.querySelectorAll('.stars-count-val').forEach(el => el.innerText = Math.min(total, 10) + "/10");
-
-            let nextGoal = 50; let prevGoal = 0;
-            if (total >= 50) { nextGoal = 100; prevGoal = 50; }
+            // Update Indicator
+            document.getElementById('step-indicator').innerText = `Шаг ${currentStepIndex + 1} из ${guideSteps.length}`;
             
-            const progressVal = total >= 100 ? 100 : Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
-            document.getElementById('rate-progress-fill').style.width = progressVal + "%";
-            document.getElementById('progress-percent').innerText = Math.round(progressVal) + "%";
-            document.getElementById('remaining-orders-text').innerText = "Осталось: " + Math.max(0, nextGoal - total) + " зак.";
+            // Button States
+            document.getElementById('prevBtn').disabled = currentStepIndex === 0;
+            document.getElementById('nextBtn').innerText = currentStepIndex === guideSteps.length - 1 ? 'Завершить' : 'Далее →';
+        }
 
-            const profNameInput = document.getElementById('prof-name');
-            const profPhoneInput = document.getElementById('prof-phone');
-
-            if (profNameInput.readOnly) {
-                profNameInput.value = data.name || "";
-                profPhoneInput.value = data.phone || "";
+        function goToStep(index) {
+            if (index >= 0 && index < guideSteps.length) {
+                currentStepIndex = index;
+                renderNav();
+                renderContent();
             }
         }
 
-        window.saveProfile = async () => {
-            const name = document.getElementById('prof-name').value;
-            const phone = document.getElementById('prof-phone').value;
-            
-            await updateDoc(userRef, { name, phone });
-            
-            document.getElementById('prof-name').readOnly = true;
-            document.getElementById('prof-phone').readOnly = true;
-            document.getElementById('save-profile-btn').style.display = 'none';
-            
-            showAlert("Данные успешно сохранены!");
-        };
-    </script>
-
-    <script>
-        const tg = window.Telegram.WebApp;
-        let modalCallback = null;
-        let isProcessingToggle = false;
-
-        function showPage(pageId) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('nav-' + pageId).classList.add('active');
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-            window.scrollTo(0,0);
-        }
-
-        function showAlert(text, callback = null) {
-            document.getElementById('modal-text-content').innerText = text;
-            document.getElementById('custom-modal-overlay').style.display = 'flex';
-            modalCallback = callback;
-        }
-
-        function closeModal() {
-            document.getElementById('custom-modal-overlay').style.display = 'none';
-            if (modalCallback) modalCallback();
-            modalCallback = null;
-        }
-
-        function handleShiftToggle() {
-            if (isProcessingToggle) return;
-            const toggle = document.getElementById('sh-toggle');
-            const stText = document.getElementById('st-text');
-            const stDot = document.getElementById('st-dot');
-
-            if (toggle.checked) {
-                isProcessingToggle = true;
-                stText.innerText = "На смене";
-                stText.className = "status-text online";
-                stDot.className = "dot bg-online";
-                
-                setTimeout(() => {
-                    toggle.checked = false;
-                    isProcessingToggle = false;
-                    stText.innerText = "Вне смены";
-                    stText.className = "status-text offline";
-                    stDot.className = "dot bg-offline";
-                    
-                    showAlert("Ваш аккаунт не активирован. Обратитесь к менеджеру для прохождения инструктажа.");
-                }, 1000);
+        // --- Event Listeners ---
+        document.getElementById('prevBtn').addEventListener('click', () => goToStep(currentStepIndex - 1));
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentStepIndex < guideSteps.length - 1) {
+                goToStep(currentStepIndex + 1);
+            } else {
+                alert('Настройка сервера завершена! Теперь вы можете проверить бота в Telegram.');
             }
-        }
+        });
 
-        function enableProfileEdit() {
-            document.getElementById('prof-name').readOnly = false;
-            document.getElementById('prof-phone').readOnly = false;
-            document.getElementById('prof-name').focus();
-            document.getElementById('save-profile-btn').style.display = 'block';
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        }
+        // --- Initialization ---
+        window.addEventListener('load', () => {
+            initChart();
+            renderNav();
+            renderContent();
+        });
 
-        function toggleFaq(el) {
-            const item = el.parentElement;
-            const isOpen = item.classList.contains('open');
-            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-            if (!isOpen) item.classList.add('open');
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
-        }
     </script>
+    <!-- CONFIRMATION: NO SVG graphics used (Chart.js used for viz, unicode for icons). NO Mermaid JS used. -->
 </body>
 </html>
