@@ -129,31 +129,26 @@
         .remaining-text { font-size: 10px; font-weight: 700; color: var(--button-color); }
         .percent-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 
-        /* Orders Banner */
-        .orders-banner {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-            border: 2px solid #248bcf;
-            padding: 16px; display: flex; align-items: center; gap: 12px;
-            margin-bottom: 16px; position: relative; overflow: hidden;
-        }
-        .orders-banner-content h3 { font-size: 15px; font-weight: 900; color: #1a6fa5; }
-        .orders-banner-content p { font-size: 11px; font-weight: 600; color: var(--hint-color); }
-        .btn-view-orders {
-            background: var(--button-color); color: white; border: none; border-radius: 8px;
-            padding: 6px 12px; font-size: 10px; font-weight: 800; margin-top: 8px; text-transform: uppercase;
-        }
-        .pulse-dot {
-            position: absolute; top: 12px; right: 12px; width: 8px; height: 8px;
-            background: var(--accent-green); border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(52, 199, 89, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); } }
+        /* Profile Special */
+        .profile-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .p-tile { background: white; padding: 16px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .p-tile svg { width: 24px; height: 24px; color: var(--button-color); }
+        .p-tile span { font-size: 11px; font-weight: 700; }
 
         /* Forms */
         .input-group { margin-bottom: 12px; }
         .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; padding-left: 4px; }
         .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; color: var(--text-color); outline: none; transition: background 0.2s; }
         .input-field:read-only { background-color: #ffffff; color: #555; }
+
+        /* FAQ & Instructions */
+        .faq-item { border-bottom: 1px solid #f0f0f2; padding: 12px 0; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .faq-answer { font-size: 12px; color: #666; padding-top: 8px; line-height: 1.4; display: none; }
+        .faq-item.open .faq-answer { display: block; }
+        .faq-item.open .faq-icon { transform: rotate(180deg); }
+        .faq-icon { transition: 0.3s; font-size: 10px; color: var(--button-color); }
 
         /* Buttons */
         .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-bottom: 8px; }
@@ -202,7 +197,6 @@
             </div>
         </div>
 
-        <!-- Бонусы на главной -->
         <div class="card bonus-card">
             <div class="bonus-title">
                 <span>Бонус 10 000 ₽ за 10 заказов</span>
@@ -259,40 +253,7 @@
             </div>
         </div>
 
-        <div class="card orders-banner">
-            <div class="pulse-dot"></div>
-            <div class="orders-banner-content">
-                <h3>10 заказов рядом</h3>
-                <p>Высокий спрос в вашем районе.</p>
-                <button class="btn-view-orders" onclick="showAlert('Для просмотра доступных заказов необходимо включить тумблер смены.')">Посмотреть заказы</button>
-            </div>
-        </div>
-
-        <button class="btn btn-primary" onclick="showAlert('Минимальная сумма выплаты составляет 1000 ₽.')">Заказать выплату</button>
-    </div>
-
-    <!-- HISTORY PAGE -->
-    <div id="page-history" class="page">
-        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
-        
-        <!-- Бонусы в Истории -->
-        <div class="card bonus-card">
-            <div class="bonus-title">
-                <span>Бонус 10 000 ₽ за 10 заказов</span>
-                <span class="stars-count-val">0/10</span>
-            </div>
-            <div class="stars-container stars-row-target">
-                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
-            </div>
-            <p class="bonus-desc">Ваш прогресс за текущую неделю</p>
-        </div>
-
-        <div class="card" style="text-align: center; padding: 40px 20px; color: var(--hint-color);">
-            <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;">📦</div>
-            <p style="font-weight: 700;">Список заказов пуст</p>
-            <p style="font-size: 12px; margin-top: 8px;">Здесь будут отображаться ваши выполненные доставки.</p>
-        </div>
+        <button class="btn btn-primary" onclick="showAlert('Минимальная сумма выплаты составляет 500 ₽.')">Заказать выплату</button>
     </div>
 
     <!-- PROFILE PAGE -->
@@ -309,25 +270,131 @@
             </div>
         </div>
         
-        <button id="edit-profile-btn" class="btn btn-secondary" onclick="enableProfileEdit()">Изменить данные</button>
-        <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none;">Сохранить изменения</button>
+        <div class="profile-btn-grid">
+            <button class="p-tile" onclick="enableProfileEdit()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span id="edit-profile-btn-text">Личные данные</span>
+            </button>
+            <button class="p-tile" onclick="showAlert('Раздел реквизитов счета находится в разработке и будет доступен после активации кабинета.')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span>Реквизиты счета</span>
+            </button>
+        </div>
+
+        <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none; margin-top: 16px;">Сохранить изменения</button>
     </div>
 
-    <!-- ABOUT PAGE -->
+    <!-- ABOUT PAGE (Инфо) -->
     <div id="page-about" class="page">
         <div style="text-align: center; padding: 20px 0;">
             <div class="logo-container" style="width: 80px; height: 80px; margin: 0 auto 12px auto;">
                 <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
             </div>
             <h2 style="font-size: 24px; font-weight: 900;">Topgo</h2>
+            <p style="font-size: 12px; color: var(--hint-color); font-weight: 600;">Версия 1.0.7</p>
         </div>
+
         <div class="card">
-            <p style="font-size: 13px; line-height: 1.5;">Topgo — это современная логистическая платформа. Мы верим, что доставка должна быть быстрой, а работа — прибыльной.</p>
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Система мотивации</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Как получить бонус 10 000 ₽? <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Данный бонус является приветственным для новых курьеров. Чтобы его получить:<br>
+                    1. Выполните свои первые 10 заказов в системе.<br>
+                    2. Следите за прогрессом по звездам на главном экране.<br>
+                    3. Как только 10-я звезда станет золотой, бонус будет начислен на ваш баланс автоматически.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Как повысить ставку за заказ? <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    В Topgo действует накопительная система уровней дохода:<br>
+                    • <b>Базовая ставка:</b> 550 ₽ за заказ.<br>
+                    • <b>Уровень 2 (600 ₽):</b> Активируется автоматически после выполнения 50 заказов за всё время.<br>
+                    • <b>Уровень 3 (650 ₽):</b> Максимальная ставка, активируется после 100 выполненных заказов.<br>
+                    Ваш текущий прогресс до следующего уровня отображается на шкале внизу главного экрана.
+                </div>
+            </div>
         </div>
+
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Инструкции курьера</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Клиент не отвечает на звонок <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    1. Попробуйте позвонить 3 раза с интервалом в 2 минуты.<br>
+                    2. Напишите в чат (если доступно) или СМС.<br>
+                    3. Подождите 10 минут на точке.<br>
+                    4. Если ответа нет — свяжитесь с поддержкой через бот для отмены.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Как сделать возврат в аптеку? <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Если заказ отменен или клиент отказался, товар необходимо вернуть в ту же аптеку, где вы его забирали. Обязательно попросите фармацевта подтвердить возврат в системе.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">База знаний (FAQ)</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Когда я получу выплату? <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Выплаты производятся ежедневно. Вы можете заказать выплату, как только ваш баланс достигнет минимальной суммы в 500 ₽. Деньги поступают по указанным вами реквизитам.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    Что я буду доставлять? <span class="faq-icon">▼</span>
+                </div>
+                <div class="faq-answer">
+                    Доставка из аптек: товары для здоровья, косметика и безрецептурные препараты. Все заказы уже оплачены в приложении, вам не нужно работать с наличными деньгами клиентов.
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <h4 style="margin-bottom: 8px; font-weight: 800;">Поддержка</h4>
-            <p style="font-size: 12px; color: var(--hint-color); margin-bottom: 12px;">Для активации аккаунта напишите нашему менеджеру:</p>
             <a href="https://t.me/Topgo_jobbot" target="_blank" class="btn btn-primary" style="text-decoration: none;">Написать в Telegram</a>
+        </div>
+    </div>
+
+    <!-- HISTORY PAGE -->
+    <div id="page-history" class="page">
+        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
+        
+        <div class="card bonus-card" style="margin-bottom: 20px;">
+            <div class="bonus-title">
+                <span>Прогресс бонуса</span>
+                <span class="stars-count-val">0/10</span>
+            </div>
+            <div class="stars-container stars-row-target">
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+            </div>
+            <p class="bonus-desc">10 000 ₽ за 10 выполненных заказов</p>
+        </div>
+
+        <div class="card" style="text-align: center; padding: 40px 20px; color: var(--hint-color);">
+            <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;">📦</div>
+            <p style="font-weight: 700;">Список выполненных заказов пуст</p>
         </div>
     </div>
 
@@ -347,7 +414,7 @@
         </button>
         <button id="nav-about" class="nav-link" onclick="showPage('about')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-            <span>О нас</span>
+            <span>Инфо</span>
         </button>
     </nav>
 
@@ -372,9 +439,13 @@
         const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
         const userRef = doc(db, "accounts", userId);
 
+        let userStatus = "inactive";
+
         onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
-                updateUI(docSnap.data());
+                const data = docSnap.data();
+                userStatus = data.status || "inactive";
+                updateUI(data);
             } else {
                 createNewUser();
             }
@@ -391,23 +462,17 @@
             });
         }
 
+        window.getStatus = () => userStatus;
+
         function updateUI(data) {
             const total = data.total_orders || 0;
-            
-            // Информация в хеддере
             document.getElementById('home-name').innerText = data.name || "Курьер";
             document.getElementById('display-id').innerText = "ID: " + userId;
-            
-            // Статистика
             document.getElementById('stat-orders').innerText = data.orders_today || 0;
             document.getElementById('stat-balance').innerText = (data.balance || 0) + " ₽";
             
-            // Бейджи общего кол-ва заказов (все экземпляры)
-            document.querySelectorAll('.total-orders-badge-val').forEach(el => {
-                el.innerText = "Всего: " + total + " зак.";
-            });
+            document.querySelectorAll('.total-orders-badge-val').forEach(el => el.innerText = "Всего: " + total + " зак.");
 
-            // Обновление звезд во всех разделах
             const starsContainers = document.querySelectorAll('.stars-row-target');
             starsContainers.forEach(container => {
                 const stars = container.querySelectorAll('.star');
@@ -416,28 +481,19 @@
                 });
             });
 
-            // Обновление текста счетчика (0/10) во всех разделах
-            document.querySelectorAll('.stars-count-val').forEach(el => {
-                el.innerText = Math.min(total, 10) + "/10";
-            });
+            document.querySelectorAll('.stars-count-val').forEach(el => el.innerText = Math.min(total, 10) + "/10");
 
-            // Карьерный прогресс
             let nextGoal = 50; let prevGoal = 0;
-            if (total >= 100) { nextGoal = 100; prevGoal = 0; }
-            else if (total >= 50) { nextGoal = 100; prevGoal = 50; }
+            if (total >= 50) { nextGoal = 100; prevGoal = 50; }
             
             const progressVal = total >= 100 ? 100 : Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
             document.getElementById('rate-progress-fill').style.width = progressVal + "%";
             document.getElementById('progress-percent').innerText = Math.round(progressVal) + "%";
             document.getElementById('remaining-orders-text').innerText = "Осталось: " + Math.max(0, nextGoal - total) + " зак.";
 
-            // Уровни (подсветка)
-            document.getElementById('rate-600').className = total >= 50 ? 'rate-box active' : 'rate-box locked';
-            document.getElementById('rate-650').className = total >= 100 ? 'rate-box active' : 'rate-box locked';
-
-            // Данные профиля (только если не в режиме редактирования)
             const profNameInput = document.getElementById('prof-name');
             const profPhoneInput = document.getElementById('prof-phone');
+
             if (profNameInput.readOnly) {
                 profNameInput.value = data.name || "";
                 profPhoneInput.value = data.phone || "";
@@ -450,10 +506,8 @@
             
             await updateDoc(userRef, { name, phone });
             
-            // Возвращаем в режим чтения
             document.getElementById('prof-name').readOnly = true;
             document.getElementById('prof-phone').readOnly = true;
-            document.getElementById('edit-profile-btn').style.display = 'block';
             document.getElementById('save-profile-btn').style.display = 'none';
             
             showAlert("Данные успешно сохранены!");
@@ -478,7 +532,6 @@
             document.getElementById('modal-text-content').innerText = text;
             document.getElementById('custom-modal-overlay').style.display = 'flex';
             modalCallback = callback;
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
         }
 
         function closeModal() {
@@ -495,41 +548,36 @@
 
             if (toggle.checked) {
                 isProcessingToggle = true;
-                
-                // МГНОВЕННО меняем текст на «На смене» зеленым
                 stText.innerText = "На смене";
                 stText.className = "status-text online";
                 stDot.className = "dot bg-online";
                 
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-                
-                // Имитация проверки сервера
                 setTimeout(() => {
                     toggle.checked = false;
                     isProcessingToggle = false;
-                    
-                    // Возвращаем как было
                     stText.innerText = "Вне смены";
                     stText.className = "status-text offline";
                     stDot.className = "dot bg-offline";
                     
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
-                    showAlert("Ваш аккаунт не активирован. Обратитесь в поддержку.", () => {
-                        showPage('about');
-                    });
+                    showAlert("Ваш аккаунт не активирован. Обратитесь к менеджеру для прохождения инструктажа.");
                 }, 1000);
             }
         }
 
-        // Логика блокировки профиля
         function enableProfileEdit() {
             document.getElementById('prof-name').readOnly = false;
             document.getElementById('prof-phone').readOnly = false;
             document.getElementById('prof-name').focus();
-            
-            document.getElementById('edit-profile-btn').style.display = 'none';
             document.getElementById('save-profile-btn').style.display = 'block';
             
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
     </script>
