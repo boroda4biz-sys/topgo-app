@@ -4,24 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Topgo Courier App</title>
+    
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
     <style>
-        /* Я сохранил все твои стили без изменений */
         :root {
-            --bg-color: #f0f0f2; --text-color: #000000; --hint-color: #999999;
-            --button-color: #248bcf; --button-text: #ffffff; --secondary-bg: #ffffff;
-            --accent-green: #34c759; --accent-gold: #ffcc00; --input-bg: #f4f4f7;
+            --bg-color: #f0f0f2;
+            --text-color: #000000;
+            --hint-color: #999999;
+            --button-color: #248bcf;
+            --button-text: #ffffff;
+            --secondary-bg: #ffffff;
+            --accent-green: #34c759;
+            --accent-gold: #ffcc00;
+            --input-bg: #f4f4f7;
             --border-radius: 16px;
         }
+
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+
         body {
-            background-color: var(--bg-color); color: var(--text-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding: 12px 12px 100px 12px; min-height: 100vh; line-height: 1.2;
+            padding: 12px 12px 100px 12px;
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100vh;
+            line-height: 1.2;
         }
+
         .page { display: none; }
         .page.active { display: block; animation: fadeIn 0.2s ease-out; }
+
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Custom Modal System */
         #custom-modal-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center;
@@ -29,17 +47,29 @@
         }
         .modal-card {
             background: white; border-radius: 20px; width: 100%; max-width: 320px;
-            padding: 24px; text-align: center; animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            padding: 24px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
         @keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal-text { font-size: 15px; font-weight: 600; line-height: 1.4; margin-bottom: 20px; color: #000; }
-        .modal-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 700; background: var(--button-color); color: white; }
+        .modal-btn { 
+            width: 100%; padding: 14px; border-radius: 12px; border: none; 
+            font-size: 15px; font-weight: 700; cursor: pointer; 
+            background: var(--button-color); color: white;
+        }
+
+        /* Header */
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
         .header-left { display: flex; align-items: center; gap: 12px; }
-        .logo-container { width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background-color: white; display: flex; align-items: center; justify-content: center; border: 2px solid #fff; }
+        .logo-container {
+            width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid #ffffff;
+            background-color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
         .logo-container img { width: 100%; height: 100%; object-fit: contain; }
         .header-info h1 { font-size: 17px; font-weight: 800; }
         .header-info p { font-size: 10px; color: var(--hint-color); font-weight: 600; }
+        
         .status-block { display: flex; flex-direction: column; align-items: flex-end; }
         .status-label { display: flex; align-items: center; margin-bottom: 4px; }
         .dot { width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; }
@@ -48,66 +78,110 @@
         .offline { color: #ff3b30 !important; }
         .bg-online { background-color: var(--accent-green); }
         .bg-offline { background-color: #ff3b30; }
+
+        /* Switch */
         .switch { position: relative; display: inline-block; width: 40px; height: 22px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d1d6; transition: .3s; border-radius: 20px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #d1d1d6; transition: .3s; border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 2px; bottom: 2px; background-color: white; transition: .3s; border-radius: 50%;
+        }
         input:checked + .slider { background-color: var(--accent-green); }
         input:checked + .slider:before { transform: translateX(18px); }
+
+        /* Cards */
         .card { background-color: var(--secondary-bg); border-radius: var(--border-radius); padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px; }
+        
+        /* Bonus Card */
         .bonus-card { background: linear-gradient(135deg, #248bcf 0%, #1a6fa5 100%); color: white; position: relative; overflow: hidden; }
-        .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; }
-        .stars-container { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .star { font-size: 20px; color: rgba(255,255,255,0.2); transition: 0.3s; }
-        .star.active { color: var(--accent-gold); }
+        .bonus-card::after { content: '★'; position: absolute; right: -10px; bottom: -20px; font-size: 80px; opacity: 0.1; transform: rotate(-15deg); }
+        .bonus-title { font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; position: relative; z-index: 1; }
+        .stars-container { display: flex; justify-content: space-between; margin-bottom: 8px; position: relative; z-index: 1; }
+        .star { font-size: 20px; color: rgba(255,255,255,0.2); transition: all 0.3s ease; text-shadow: 0 0 5px rgba(0,0,0,0.1); }
+        .star.active { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); transform: scale(1.1); }
+        .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.9; position: relative; z-index: 1; }
+
+        /* Live Orders Section */
         .live-dot { width: 8px; height: 8px; background: #ff3b30; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(0.95); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); } 100% { transform: scale(0.95); } }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
+        /* Stats */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 12px; }
         .stat-card { flex: 1; text-align: center; }
-        .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; }
+        .stat-label { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; display: block; }
         .stat-value { font-size: 18px; font-weight: 900; }
-        .career-title { font-size: 12px; font-weight: 800; text-transform: uppercase; margin: 10px 4px; display: flex; justify-content: space-between; }
+
+        /* Rates */
+        .career-title { font-size: 12px; font-weight: 800; text-transform: uppercase; margin: 10px 4px; display: flex; justify-content: space-between; align-items: center; }
         .rates-row { display: flex; gap: 8px; margin-bottom: 12px; }
-        .rate-box { flex: 1; background: var(--secondary-bg); padding: 12px 8px; border-radius: 12px; text-align: center; border: 2px solid transparent; }
+        .rate-box { flex: 1; background: var(--secondary-bg); padding: 12px 8px; border-radius: 12px; text-align: center; border: 2px solid transparent; position: relative; transition: 0.3s; }
         .rate-box.active { border-color: var(--accent-green); background: #fafffb; }
-        .rate-box.locked { opacity: 0.6; }
+        .rate-box.locked { opacity: 0.6; background: #fafafa; }
         .rate-price { font-size: 14px; font-weight: 900; display: block; }
-        .rate-goal { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; }
+        .rate-goal { font-size: 8px; font-weight: 700; color: var(--hint-color); text-transform: uppercase; margin-top: 4px; display: block; }
+
+        /* Progress Bar */
         .modern-progress { background: var(--secondary-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
-        .progress-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; color: var(--hint-color); }
-        .progress-track { height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin: 8px 0; }
-        .progress-bar { height: 100%; background: var(--button-color); width: 0%; transition: 0.6s; }
+        .progress-header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 800; margin-bottom: 8px; color: var(--hint-color); }
+        .progress-track { height: 8px; background: var(--input-bg); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+        .progress-bar { height: 100%; background: var(--button-color); width: 0%; transition: width 0.6s ease; }
         .progress-footer { display: flex; justify-content: space-between; align-items: center; }
         .remaining-text { font-size: 10px; font-weight: 700; color: var(--button-color); }
         .percent-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
+
+        /* FAQ & Instructions */
         .faq-item { border-bottom: 1px solid #f0f0f2; padding: 12px 0; }
-        .faq-question { font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; cursor: pointer; }
-        .faq-answer { font-size: 12px; color: #666; padding-top: 8px; display: none; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .faq-answer { font-size: 12px; color: #666; padding-top: 8px; line-height: 1.4; display: none; }
         .faq-item.open .faq-answer { display: block; }
+        .faq-item.open .faq-icon { transform: rotate(180deg); }
+        .faq-icon { transition: 0.3s; font-size: 10px; color: var(--button-color); }
+
+        /* Profile Special */
         .profile-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .p-tile { background: white; padding: 16px; border-radius: 12px; text-align: center; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+        .p-tile { background: white; padding: 16px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .p-tile svg { width: 24px; height: 24px; color: var(--button-color); }
+        .p-tile span { font-size: 11px; font-weight: 700; }
+
+        /* Forms */
         .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; }
-        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; outline: none; }
-        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; }
-        .btn-primary { background-color: var(--button-color); color: white; }
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: var(--secondary-bg); display: flex; border-top: 1px solid rgba(0,0,0,0.05); z-index: 1000; }
+        .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; padding-left: 4px; }
+        .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; color: var(--text-color); outline: none; transition: background 0.2s; }
+        .input-field:read-only { background-color: #ffffff; color: #555; }
+
+        /* Buttons */
+        .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-bottom: 8px; }
+        .btn-primary { background-color: var(--button-color); color: var(--button-text); box-shadow: 0 4px 10px rgba(36, 139, 207, 0.2); }
+        .btn-secondary { background-color: #e5e5ea; color: #000; }
+
+        /* Navbar */
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background-color: var(--secondary-bg); display: flex; border-top: 1px solid rgba(0,0,0,0.05); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); }
         .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--hint-color); background: none; border: none; }
         .nav-link.active { color: var(--button-color); }
         .nav-link span { font-size: 9px; font-weight: 700; margin-top: 4px; }
         .nav-link svg { width: 22px; height: 22px; }
     </style>
 </head>
-<body>
+<body class="theme-tg">
 
+    <!-- Custom Modal Overlay -->
     <div id="custom-modal-overlay">
         <div class="modal-card">
-            <p id="modal-text-content" class="modal-text"></p>
-            <button class="modal-btn" onclick="closeModal()">Понятно</button>
+            <p id="modal-text-content" class="modal-text">Сообщение</p>
+            <button id="modal-primary-btn" class="modal-btn" onclick="closeModal()">Понятно</button>
         </div>
     </div>
 
+    <!-- HOME PAGE -->
     <div id="page-home" class="page active">
         <div class="header">
             <div class="header-left">
@@ -140,6 +214,7 @@
                 <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
                 <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
             </div>
+            <p class="bonus-desc">Выполните 10 заказов для получения бонуса</p>
         </div>
 
         <div class="stats-grid">
@@ -153,15 +228,21 @@
             </div>
         </div>
 
-        <div class="card" id="orders_banner" style="border: 2px solid var(--button-color); display: flex; justify-content: space-between; align-items: center;">
+        <!-- Available Orders Banner -->
+        <div class="card" id="orders_banner" style="border: 2px solid var(--button-color); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center;">
             <div>
-                <div style="display: flex; align-items: center; gap: 6px;">
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
                     <span class="live-dot"></span>
-                    <span style="font-size: 10px; font-weight: 800; color: #ff3b30;">LIVE</span>
+                    <span style="font-size: 10px; font-weight: 800; color: #ff3b30; text-transform: uppercase; letter-spacing: 0.5px;">Live</span>
                 </div>
-                <h3 style="font-size: 16px; font-weight: 900;">Заказов: <span id="orders_count_val">...</span></h3>
+                <h3 style="font-size: 16px; font-weight: 900;">Заказов доступно: <span id="orders_count_val">...</span></h3>
+                <p style="font-size: 11px; color: var(--hint-color); font-weight: 600; margin-top: 2px;">Радиус поиска: 5 км</p>
             </div>
-            <button class="btn-primary" style="padding: 10px; border-radius: 10px; border:none;" onclick="showAlert('Требуется верификация')">Смотреть</button>
+            <button id="view_orders_btn" class="btn-primary" 
+                    style="padding: 10px 16px; font-size: 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer;"
+                    onclick="showAlert('Для просмотра списка активных заказов необходимо завершить верификацию. Пожалуйста, обратитесь к вашему менеджеру.')">
+                Посмотреть
+            </button>
         </div>
 
         <div class="career-title">
@@ -170,150 +251,343 @@
         </div>
 
         <div class="rates-row">
-            <div id="rate-550" class="rate-box active"><span class="rate-price">550 ₽</span><span class="rate-goal">Базовая</span></div>
-            <div id="rate-600" class="rate-box locked"><span class="rate-price">600 ₽</span><span class="rate-goal">50 зак.</span></div>
-            <div id="rate-650" class="rate-box locked"><span class="rate-price">650 ₽</span><span class="rate-goal">100 зак.</span></div>
+            <div id="rate-550" class="rate-box active">
+                <span class="rate-price">550 ₽</span>
+                <span class="rate-goal">Базовая</span>
+            </div>
+            <div id="rate-600" class="rate-box locked">
+                <span class="rate-price">600 ₽</span>
+                <span class="rate-goal">50 зак.</span>
+            </div>
+            <div id="rate-650" class="rate-box locked">
+                <span class="rate-price">650 ₽</span>
+                <span class="rate-goal">100 зак.</span>
+            </div>
         </div>
 
         <div class="modern-progress">
-            <div class="progress-track"><div id="rate-progress-fill" class="progress-bar"></div></div>
+            <div class="progress-header">
+                <span id="progress-text-left">До повышения (600 ₽)</span>
+            </div>
+            <div class="progress-track">
+                <div id="rate-progress-fill" class="progress-bar"></div>
+            </div>
             <div class="progress-footer">
                 <span id="remaining-orders-text" class="remaining-text">Осталось: 50 зак.</span>
                 <span id="progress-percent" class="percent-badge">0%</span>
             </div>
         </div>
+
+        <button class="btn btn-primary" onclick="showAlert('Минимальная сумма выплаты составляет 500 ₽.')">Заказать выплату</button>
     </div>
 
+    <!-- HISTORY PAGE -->
+    <div id="page-history" class="page">
+        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
+        <div class="card bonus-card" style="margin-bottom: 20px;">
+            <div class="bonus-title">
+                <span>Прогресс бонуса</span>
+                <span class="stars-count-val">0/10</span>
+            </div>
+            <div class="stars-container stars-row-target">
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+                <span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span><span class="star">★</span>
+            </div>
+            <p class="bonus-desc">10 000 ₽ за 10 выполненных заказов</p>
+        </div>
+        <div class="card" style="text-align: center; padding: 40px 20px; color: var(--hint-color);">
+            <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;">📦</div>
+            <p style="font-weight: 700;">Список выполненных заказов пуст</p>
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
     <div id="page-profile" class="page">
-        <h2 style="margin-bottom: 20px;">Мой профиль</h2>
+        <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">Мой профиль</h2>
         <div class="card">
             <div class="input-group">
                 <label>Ваше ФИО</label>
-                <input type="text" id="prof-name" class="input-field" readonly>
+                <input type="text" id="prof-name" class="input-field" placeholder="Иван Иванов" readonly>
             </div>
             <div class="input-group">
                 <label>Номер телефона</label>
-                <input type="tel" id="prof-phone" class="input-field" readonly>
+                <input type="tel" id="prof-phone" class="input-field" placeholder="+7 (999) 000-00-00" readonly>
             </div>
         </div>
         <div class="profile-btn-grid">
-            <button class="p-tile" onclick="enableProfileEdit()"><span>Изменить данные</span></button>
+            <button class="p-tile" onclick="enableProfileEdit()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span id="edit-profile-btn-text">Личные данные</span>
+            </button>
+            <button class="p-tile" onclick="showAlert('Раздел реквизитов счета находится в разработке и будет доступен после активации кабинета.')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <span>Реквизиты счета</span>
+            </button>
         </div>
-        <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none; margin-top: 16px;">Сохранить</button>
+        <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none; margin-top: 16px;">Сохранить изменения</button>
     </div>
 
+    <!-- INFO PAGE -->
+    <div id="page-about" class="page">
+        <div style="text-align: center; padding: 20px 0;">
+            <div class="logo-container" style="width: 80px; height: 80px; margin: 0 auto 12px auto;">
+                <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
+            </div>
+            <h2 style="font-size: 24px; font-weight: 900;">Topgo</h2>
+            <p style="font-size: 12px; color: var(--hint-color); font-weight: 600;">Версия 1.1.9</p>
+        </div>
+
+        <!-- Instructions for Couriers -->
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Инструкции по работе</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Что мы доставляем? <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    Мы осуществляем доставку из крупнейших аптечных сетей (федеральных и локальных). <br><br>
+                    • <b>Оплата:</b> Все заказы уже заранее оплачены клиентом. Вам не нужно принимать деньги. <br>
+                    • <b>Рецепты:</b> Мы доставляем только безрецептурные товары. Наличие рецепта от клиента не требуется.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Связь с клиентом <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    1. <b>Перед выездом:</b> Звонить не обязательно, если нет уточняющих вопросов по адресу. <br>
+                    2. <b>По прибытии:</b> Позвоните клиенту, вежливо сообщите, что вы курьер Topgo и привезли заказ из аптеки. <br>
+                    3. <b>Если не отвечает:</b> Сделайте 3 звонка с интервалом в 2 минуты. Если ответа нет — свяжитесь с диспетчером.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Как вернуть заказ в аптеку? <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    Возврат осуществляется только в случае невозможности вручения заказа клиенту: <br><br>
+                    1. Получите подтверждение от диспетчера на отмену заказа. <br>
+                    2. Вернитесь в ту же аптеку, где забирали заказ. <br>
+                    3. Передайте пакет фармацевту и попросите отметить возврат в системе. <br>
+                    4. После этого заказ будет считаться закрытым с оплатой за "холостой пробег".
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivation System -->
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Система мотивации</h3>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Как получить бонус 10 000 ₽? <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    Данный бонус является приветственным. Чтобы его получить:<br>
+                    1. Выполните свои первые 10 заказов.<br>
+                    2. Как только 10-я звезда на главном экране станет золотой, бонус будет начислен автоматически.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Как повысить ставку? <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    • <b>550 ₽:</b> Базовая ставка.<br>
+                    • <b>600 ₽:</b> После выполнения 50 заказов.<br>
+                    • <b>650 ₽:</b> После выполнения 100 заказов.
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h4 style="margin-bottom: 8px; font-weight: 800;">Поддержка</h4>
+            <a href="https://t.me/Topgo_jobbot" target="_blank" class="btn btn-primary" style="text-decoration: none;">Написать в Telegram</a>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
     <nav class="navbar">
-        <button id="nav-home" class="nav-link active" onclick="showPage('home')"><span>Главная</span></button>
-        <button id="nav-profile" class="nav-link" onclick="showPage('profile')"><span>Профиль</span></button>
+        <button id="nav-home" class="nav-link active" onclick="showPage('home')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Главная</span>
+        </button>
+        <button id="nav-history" class="nav-link" onclick="showPage('history')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>История</span>
+        </button>
+        <button id="nav-profile" class="nav-link" onclick="showPage('profile')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Профиль</span>
+        </button>
+        <button id="nav-about" class="nav-link" onclick="showPage('about')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>Инфо</span>
+        </button>
     </nav>
 
-    <script>
-        const API_BASE = "http://45.141.102.224:5000"; // ТВОЙ IP
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAbrT8SPEIAWPLJqaUNYK-JFBiWoTvowBc",
+            authDomain: "topgo-app.firebaseapp.com",
+            projectId: "topgo-app",
+            storageBucket: "topgo-app.firebasestorage.app",
+            messagingSenderId: "760416053784",
+            appId: "1:760416053784:web:db23088a0ae398fe99716d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
         const tg = window.Telegram.WebApp;
         tg.expand();
-        
-        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
-        let modalCallback = null;
 
-        // ЗАГРУЗКА ДАННЫХ
-        async function loadUserData() {
-            try {
-                const res = await fetch(`${API_BASE}/get_user?id=${userId}`);
-                const data = await res.json();
-                if (data.success) {
-                    updateUI(data.user);
-                } else {
-                    await createNewUser();
-                }
-            } catch (e) { console.error("Ошибка API:", e); }
-        }
+        const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
+        const userRef = doc(db, "accounts", userId);
+
+        let lastVisitTime = null;
+
+        onSnapshot(userRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                lastVisitTime = data.last_visit?.toMillis() || Date.now();
+                updateUI(data);
+                updateDynamicOrders();
+            } else {
+                createNewUser();
+            }
+        });
 
         async function createNewUser() {
-            await fetch(`${API_BASE}/create_user`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: userId, name: tg.initDataUnsafe?.user?.first_name || "Курьер" })
+            await setDoc(userRef, {
+                name: tg.initDataUnsafe?.user?.first_name || "Курьер",
+                phone: "",
+                status: "inactive",
+                balance: 0,
+                orders_today: 0,
+                total_orders: 0,
+                last_visit: serverTimestamp()
             });
-            loadUserData();
         }
 
-        function updateUI(user) {
-            document.getElementById('home-name').innerText = user.name;
-            document.getElementById('display-id').innerText = "ID: " + user.id;
-            document.getElementById('stat-orders').innerText = user.orders_today;
-            document.getElementById('stat-balance').innerText = user.balance + " ₽";
-            document.getElementById('prof-name').value = user.name;
-            document.getElementById('prof-phone').value = user.phone || "";
+        // Available orders logic: ID: orders_count_val, Type: Text
+        function updateDynamicOrders() {
+            if (!lastVisitTime) return;
+            const now = Date.now();
+            const diffInMs = now - lastVisitTime;
+            const thirtyMinMs = 30 * 60 * 1000;
+            const intervalCount = Math.floor(diffInMs / thirtyMinMs);
+            const seed = lastVisitTime + (intervalCount * thirtyMinMs);
+            const randomCount = 7 + (seed % 6);
+            const counterEl = document.getElementById('orders_count_val');
+            if (counterEl) counterEl.innerText = randomCount;
+        }
+
+        setInterval(updateDynamicOrders, 60000); 
+
+        function updateUI(data) {
+            const total = data.total_orders || 0;
+            document.getElementById('home-name').innerText = data.name || "Курьер";
+            document.getElementById('display-id').innerText = "ID: " + userId;
+            document.getElementById('stat-orders').innerText = data.orders_today || 0;
+            document.getElementById('stat-balance').innerText = (data.balance || 0) + " ₽";
             
-            const total = user.total_orders;
             document.querySelectorAll('.total-orders-badge-val').forEach(el => el.innerText = "Всего: " + total + " зак.");
-            
-            // Звезды
-            const stars = document.querySelectorAll('.star');
-            stars.forEach((s, i) => { i < total ? s.classList.add('active') : s.classList.remove('active'); });
-            
-            // Прогресс
-            let next = total < 50 ? 50 : 100;
-            let percent = Math.min(100, (total / next) * 100);
-            document.getElementById('rate-progress-fill').style.width = percent + "%";
-            document.getElementById('progress-percent').innerText = Math.round(percent) + "%";
-            document.getElementById('remaining-orders-text').innerText = "Осталось: " + Math.max(0, next - total);
+
+            const starsContainers = document.querySelectorAll('.stars-row-target');
+            starsContainers.forEach(container => {
+                const stars = container.querySelectorAll('.star');
+                stars.forEach((s, idx) => {
+                    idx < total ? s.classList.add('active') : s.classList.remove('active');
+                });
+            });
+
+            document.querySelectorAll('.stars-count-val').forEach(el => el.innerText = Math.min(total, 10) + "/10");
+
+            let nextGoal = 50; let prevGoal = 0;
+            if (total >= 50) { nextGoal = 100; prevGoal = 50; }
+            const progressVal = total >= 100 ? 100 : Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
+            document.getElementById('rate-progress-fill').style.width = progressVal + "%";
+            document.getElementById('progress-percent').innerText = Math.round(progressVal) + "%";
+            document.getElementById('remaining-orders-text').innerText = "Осталось: " + Math.max(0, nextGoal - total) + " зак.";
+
+            const profNameInput = document.getElementById('prof-name');
+            const profPhoneInput = document.getElementById('prof-phone');
+            if (profNameInput.readOnly) {
+                profNameInput.value = data.name || "";
+                profPhoneInput.value = data.phone || "";
+            }
         }
 
         window.saveProfile = async () => {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
-            const res = await fetch(`${API_BASE}/update_profile`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: userId, name, phone })
-            });
-            if (res.ok) {
-                document.getElementById('prof-name').readOnly = true;
-                document.getElementById('prof-phone').readOnly = true;
-                document.getElementById('save-profile-btn').style.display = 'none';
-                showAlert("Данные сохранены!");
-                loadUserData();
-            }
+            await updateDoc(userRef, { name, phone });
+            document.getElementById('prof-name').readOnly = true;
+            document.getElementById('prof-phone').readOnly = true;
+            document.getElementById('save-profile-btn').style.display = 'none';
+            showAlert("Данные успешно сохранены!");
         };
+    </script>
 
-        // НАВИГАЦИЯ И МОДАЛКИ
-        function showPage(p) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-            document.getElementById('nav-' + p).classList.add('active');
+    <script>
+        const tg = window.Telegram.WebApp;
+        let modalCallback = null;
+        let isProcessingToggle = false;
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('nav-' + pageId).classList.add('active');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.scrollTo(0,0);
         }
 
-        function showAlert(t) {
-            document.getElementById('modal-text-content').innerText = t;
+        function showAlert(text, callback = null) {
+            document.getElementById('modal-text-content').innerText = text;
             document.getElementById('custom-modal-overlay').style.display = 'flex';
+            modalCallback = callback;
         }
 
-        function closeModal() { document.getElementById('custom-modal-overlay').style.display = 'none'; }
+        function closeModal() {
+            document.getElementById('custom-modal-overlay').style.display = 'none';
+            if (modalCallback) modalCallback();
+            modalCallback = null;
+        }
+
+        function handleShiftToggle() {
+            if (isProcessingToggle) return;
+            const toggle = document.getElementById('sh-toggle');
+            const stText = document.getElementById('st-text');
+            const stDot = document.getElementById('st-dot');
+
+            if (toggle.checked) {
+                isProcessingToggle = true;
+                stText.innerText = "На смене";
+                stText.className = "status-text online";
+                stDot.className = "dot bg-online";
+                
+                setTimeout(() => {
+                    toggle.checked = false;
+                    isProcessingToggle = false;
+                    stText.innerText = "Вне смены";
+                    stText.className = "status-text offline";
+                    stDot.className = "dot bg-offline";
+                    showAlert("Ваш аккаунт не активирован. Обратитесь к менеджеру для прохождения инструктажа.");
+                }, 1000);
+            }
+        }
 
         function enableProfileEdit() {
             document.getElementById('prof-name').readOnly = false;
             document.getElementById('prof-phone').readOnly = false;
+            document.getElementById('prof-name').focus();
             document.getElementById('save-profile-btn').style.display = 'block';
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
-        function handleShiftToggle() {
-            const t = document.getElementById('sh-toggle');
-            if(t.checked) {
-                setTimeout(() => {
-                    t.checked = false;
-                    showAlert("Аккаунт не активирован менеджером.");
-                }, 800);
-            }
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
-
-        // Рандом заказов (имитация)
-        setInterval(() => {
-            document.getElementById('orders_count_val').innerText = 7 + Math.floor(Math.random() * 5);
-        }, 5000);
-
-        loadUserData();
     </script>
 </body>
 </html>
