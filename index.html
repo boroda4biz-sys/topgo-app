@@ -173,7 +173,6 @@
 </head>
 <body class="theme-tg">
 
-    <!-- Custom Modal Overlay -->
     <div id="custom-modal-overlay">
         <div class="modal-card">
             <p id="modal-text-content" class="modal-text">Сообщение</p>
@@ -181,7 +180,6 @@
         </div>
     </div>
 
-    <!-- HOME PAGE -->
     <div id="page-home" class="page active">
         <div class="header">
             <div class="header-left">
@@ -228,7 +226,6 @@
             </div>
         </div>
 
-        <!-- Available Orders Banner -->
         <div class="card" id="orders_banner" style="border: 2px solid var(--button-color); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
@@ -238,7 +235,7 @@
                 <h3 style="font-size: 16px; font-weight: 900;">Заказов доступно: <span id="orders_count_val">...</span></h3>
                 <p style="font-size: 11px; color: var(--hint-color); font-weight: 600; margin-top: 2px;">Радиус поиска: 5 км</p>
             </div>
-            <button id="view_orders_btn" class="btn-primary" 
+            <button class="btn-primary" 
                     style="padding: 10px 16px; font-size: 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer;"
                     onclick="showAlert('Для просмотра списка активных заказов необходимо завершить верификацию. Пожалуйста, обратитесь к вашему менеджеру.')">
                 Посмотреть
@@ -281,7 +278,6 @@
         <button class="btn btn-primary" onclick="showAlert('Минимальная сумма выплаты составляет 500 ₽.')">Заказать выплату</button>
     </div>
 
-    <!-- HISTORY PAGE -->
     <div id="page-history" class="page">
         <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
         <div class="card bonus-card" style="margin-bottom: 20px;">
@@ -301,7 +297,6 @@
         </div>
     </div>
 
-    <!-- PROFILE PAGE -->
     <div id="page-profile" class="page">
         <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">Мой профиль</h2>
         <div class="card">
@@ -327,7 +322,6 @@
         <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none; margin-top: 16px;">Сохранить изменения</button>
     </div>
 
-    <!-- INFO PAGE -->
     <div id="page-about" class="page">
         <div style="text-align: center; padding: 20px 0;">
             <div class="logo-container" style="width: 80px; height: 80px; margin: 0 auto 12px auto;">
@@ -337,58 +331,11 @@
             <p style="font-size: 12px; color: var(--hint-color); font-weight: 600;">Версия 1.1.9</p>
         </div>
 
-        <!-- Instructions for Couriers -->
         <div class="card">
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Инструкции по работе</h3>
-            
             <div class="faq-item">
                 <div class="faq-question" onclick="toggleFaq(this)">Что мы доставляем? <span class="faq-icon">▼</span></div>
-                <div class="faq-answer">
-                    Мы осуществляем доставку из крупнейших аптечных сетей (федеральных и локальных). <br><br>
-                    • <b>Оплата:</b> Все заказы уже заранее оплачены клиентом. Вам не нужно принимать деньги. <br>
-                    • <b>Рецепты:</b> Мы доставляем только безрецептурные товары. Наличие рецепта от клиента не требуется.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">Связь с клиентом <span class="faq-icon">▼</span></div>
-                <div class="faq-answer">
-                    1. <b>Перед выездом:</b> Звонить не обязательно, если нет уточняющих вопросов по адресу. <br>
-                    2. <b>По прибытии:</b> Позвоните клиенту, вежливо сообщите, что вы курьер Topgo и привезли заказ из аптеки. <br>
-                    3. <b>Если не отвечает:</b> Сделайте 3 звонка с интервалом в 2 минуты. Если ответа нет — свяжитесь с диспетчером.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">Как вернуть заказ в аптеку? <span class="faq-icon">▼</span></div>
-                <div class="faq-answer">
-                    Возврат осуществляется только в случае невозможности вручения заказа клиенту: <br><br>
-                    1. Получите подтверждение от диспетчера на отмену заказа. <br>
-                    2. Вернитесь в ту же аптеку, где забирали заказ. <br>
-                    3. Передайте пакет фармацевту и попросите отметить возврат в системе. <br>
-                    4. После этого заказ будет считаться закрытым с оплатой за "холостой пробег".
-                </div>
-            </div>
-        </div>
-
-        <!-- Motivation System -->
-        <div class="card">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Система мотивации</h3>
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">Как получить бонус 10 000 ₽? <span class="faq-icon">▼</span></div>
-                <div class="faq-answer">
-                    Данный бонус является приветственным. Чтобы его получить:<br>
-                    1. Выполните свои первые 10 заказов.<br>
-                    2. Как только 10-я звезда на главном экране станет золотой, бонус будет начислен автоматически.
-                </div>
-            </div>
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">Как повысить ставку? <span class="faq-icon">▼</span></div>
-                <div class="faq-answer">
-                    • <b>550 ₽:</b> Базовая ставка.<br>
-                    • <b>600 ₽:</b> После выполнения 50 заказов.<br>
-                    • <b>650 ₽:</b> После выполнения 100 заказов.
-                </div>
+                <div class="faq-answer">Мы осуществляем доставку из аптек. Все заказы оплачены.</div>
             </div>
         </div>
 
@@ -398,7 +345,6 @@
         </div>
     </div>
 
-    <!-- NAVBAR -->
     <nav class="navbar">
         <button id="nav-home" class="nav-link active" onclick="showPage('home')">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
@@ -422,14 +368,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, doc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAbrT8SPEIAWPLJqaUNYK-JFBiWoTvowBc",
-            authDomain: "topgo-app.firebaseapp.com",
-            projectId: "topgo-app",
-            storageBucket: "topgo-app.firebasestorage.app",
-            messagingSenderId: "760416053784",
-            appId: "1:760416053784:web:db23088a0ae398fe99716d"
-        };
+        // КЛЮЧИ ТЕПЕРЬ ТУТ (ВНЕШНИЙ ФАЙЛ)
+        import { firebaseConfig } from './firebase-config.js';
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -464,7 +404,6 @@
             });
         }
 
-        // Available orders logic: ID: orders_count_val, Type: Text
         function updateDynamicOrders() {
             if (!lastVisitTime) return;
             const now = Date.now();
@@ -525,50 +464,30 @@
     </script>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        let modalCallback = null;
-        let isProcessingToggle = false;
-
+        // Вспомогательные функции навигации и UI
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
             document.querySelectorAll('.nav-link').forEach(btn => btn.classList.remove('active'));
             document.getElementById('nav-' + pageId).classList.add('active');
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             window.scrollTo(0,0);
         }
 
-        function showAlert(text, callback = null) {
+        function showAlert(text) {
             document.getElementById('modal-text-content').innerText = text;
             document.getElementById('custom-modal-overlay').style.display = 'flex';
-            modalCallback = callback;
         }
 
         function closeModal() {
             document.getElementById('custom-modal-overlay').style.display = 'none';
-            if (modalCallback) modalCallback();
-            modalCallback = null;
         }
 
         function handleShiftToggle() {
-            if (isProcessingToggle) return;
             const toggle = document.getElementById('sh-toggle');
-            const stText = document.getElementById('st-text');
-            const stDot = document.getElementById('st-dot');
-
             if (toggle.checked) {
-                isProcessingToggle = true;
-                stText.innerText = "На смене";
-                stText.className = "status-text online";
-                stDot.className = "dot bg-online";
-                
                 setTimeout(() => {
                     toggle.checked = false;
-                    isProcessingToggle = false;
-                    stText.innerText = "Вне смены";
-                    stText.className = "status-text offline";
-                    stDot.className = "dot bg-offline";
-                    showAlert("Ваш аккаунт не активирован. Обратитесь к менеджеру для прохождения инструктажа.");
+                    showAlert("Ваш аккаунт не активирован. Обратитесь к менеджеру.");
                 }, 1000);
             }
         }
@@ -576,17 +495,11 @@
         function enableProfileEdit() {
             document.getElementById('prof-name').readOnly = false;
             document.getElementById('prof-phone').readOnly = false;
-            document.getElementById('prof-name').focus();
             document.getElementById('save-profile-btn').style.display = 'block';
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
         function toggleFaq(el) {
-            const item = el.parentElement;
-            const isOpen = item.classList.contains('open');
-            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-            if (!isOpen) item.classList.add('open');
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            el.parentElement.classList.toggle('open');
         }
     </script>
 </body>
