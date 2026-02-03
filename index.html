@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Topgo Courier App</title>
     
-    <script type="text/javascript" src="http://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=xAIqdxEjfNsSqDams94CezYWOaJ39tCQyAYmy9uTGWwGuwOuZtZ-JiyssJZmaDt_" charset="UTF-8"></script><script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
         :root {
@@ -106,6 +105,14 @@
         .star.active { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255, 204, 0, 0.5); transform: scale(1.1); }
         .bonus-desc { font-size: 10px; font-weight: 600; opacity: 0.9; position: relative; z-index: 1; }
 
+        /* Live Orders Section */
+        .live-dot { width: 8px; height: 8px; background: #ff3b30; border-radius: 50%; display: inline-block; animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255, 59, 48, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 59, 48, 0); }
+        }
+
         /* Stats */
         .stats-grid { display: flex; gap: 10px; margin-bottom: 12px; }
         .stat-card { flex: 1; text-align: center; }
@@ -130,6 +137,15 @@
         .remaining-text { font-size: 10px; font-weight: 700; color: var(--button-color); }
         .percent-badge { background: var(--input-bg); padding: 2px 6px; border-radius: 6px; font-size: 10px; font-weight: 800; }
 
+        /* FAQ & Instructions */
+        .faq-item { border-bottom: 1px solid #f0f0f2; padding: 12px 0; }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .faq-answer { font-size: 12px; color: #666; padding-top: 8px; line-height: 1.4; display: none; }
+        .faq-item.open .faq-answer { display: block; }
+        .faq-item.open .faq-icon { transform: rotate(180deg); }
+        .faq-icon { transition: 0.3s; font-size: 10px; color: var(--button-color); }
+
         /* Profile Special */
         .profile-btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .p-tile { background: white; padding: 16px; border-radius: 12px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; border: none; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -141,15 +157,6 @@
         .input-group label { display: block; font-size: 10px; font-weight: 800; color: var(--hint-color); text-transform: uppercase; margin-bottom: 4px; padding-left: 4px; }
         .input-field { width: 100%; padding: 12px; border-radius: 10px; border: none; background-color: var(--input-bg); font-size: 14px; font-weight: 600; color: var(--text-color); outline: none; transition: background 0.2s; }
         .input-field:read-only { background-color: #ffffff; color: #555; }
-
-        /* FAQ & Instructions */
-        .faq-item { border-bottom: 1px solid #f0f0f2; padding: 12px 0; }
-        .faq-item:last-child { border-bottom: none; }
-        .faq-question { font-size: 13px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .faq-answer { font-size: 12px; color: #666; padding-top: 8px; line-height: 1.4; display: none; }
-        .faq-item.open .faq-answer { display: block; }
-        .faq-item.open .faq-icon { transform: rotate(180deg); }
-        .faq-icon { transition: 0.3s; font-size: 10px; color: var(--button-color); }
 
         /* Buttons */
         .btn { display: block; width: 100%; padding: 14px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; text-align: center; margin-bottom: 8px; }
@@ -221,6 +228,23 @@
             </div>
         </div>
 
+        <!-- Available Orders Banner -->
+        <div class="card" id="orders_banner" style="border: 2px solid var(--button-color); position: relative; overflow: hidden; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                    <span class="live-dot"></span>
+                    <span style="font-size: 10px; font-weight: 800; color: #ff3b30; text-transform: uppercase; letter-spacing: 0.5px;">Live</span>
+                </div>
+                <h3 style="font-size: 16px; font-weight: 900;">Заказов доступно: <span id="orders_count_val">...</span></h3>
+                <p style="font-size: 11px; color: var(--hint-color); font-weight: 600; margin-top: 2px;">Радиус поиска: 5 км</p>
+            </div>
+            <button id="view_orders_btn" class="btn-primary" 
+                    style="padding: 10px 16px; font-size: 12px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer;"
+                    onclick="showAlert('Для просмотра списка активных заказов необходимо завершить верификацию. Пожалуйста, обратитесь к вашему менеджеру.')">
+                Посмотреть
+            </button>
+        </div>
+
         <div class="career-title">
             <span>Уровни дохода</span>
             <span class="total-orders-badge-val" style="font-size: 10px; color: var(--button-color);">Всего: 0 зак.</span>
@@ -260,7 +284,6 @@
     <!-- HISTORY PAGE -->
     <div id="page-history" class="page">
         <h2 style="margin: 10px 0 20px 0; font-size: 20px; font-weight: 800;">История заказов</h2>
-        
         <div class="card bonus-card" style="margin-bottom: 20px;">
             <div class="bonus-title">
                 <span>Прогресс бонуса</span>
@@ -272,7 +295,6 @@
             </div>
             <p class="bonus-desc">10 000 ₽ за 10 выполненных заказов</p>
         </div>
-
         <div class="card" style="text-align: center; padding: 40px 20px; color: var(--hint-color);">
             <div style="font-size: 40px; margin-bottom: 12px; opacity: 0.3;">📦</div>
             <p style="font-weight: 700;">Список выполненных заказов пуст</p>
@@ -292,7 +314,6 @@
                 <input type="tel" id="prof-phone" class="input-field" placeholder="+7 (999) 000-00-00" readonly>
             </div>
         </div>
-        
         <div class="profile-btn-grid">
             <button class="p-tile" onclick="enableProfileEdit()">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -303,70 +324,70 @@
                 <span>Реквизиты счета</span>
             </button>
         </div>
-
         <button id="save-profile-btn" class="btn btn-primary" onclick="window.saveProfile()" style="display: none; margin-top: 16px;">Сохранить изменения</button>
     </div>
 
-    <!-- ABOUT PAGE (Инфо) -->
+    <!-- INFO PAGE -->
     <div id="page-about" class="page">
         <div style="text-align: center; padding: 20px 0;">
             <div class="logo-container" style="width: 80px; height: 80px; margin: 0 auto 12px auto;">
                 <img src="https://i.1.creatium.io/disk2/ef/14/cb/1c27fcf801a586369488753e9cb834d7d2/372x248q8/izobrajenie_2026_02_02_165037378.png" alt="Logo">
             </div>
             <h2 style="font-size: 24px; font-weight: 900;">Topgo</h2>
-            <p style="font-size: 12px; color: var(--hint-color); font-weight: 600;">Версия 1.0.7</p>
+            <p style="font-size: 12px; color: var(--hint-color); font-weight: 600;">Версия 1.1.0 (Demo)</p>
         </div>
 
+        <!-- Instructions for Couriers -->
+        <div class="card">
+            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Инструкции по работе</h3>
+            
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Что мы доставляем? <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    Мы осуществляем доставку из крупнейших аптечных сетей (федеральных и локальных). <br><br>
+                    • <b>Оплата:</b> Все заказы уже заранее оплачены клиентом. Вам не нужно принимать деньги. <br>
+                    • <b>Рецепты:</b> Мы доставляем только безрецептурные товары. Наличие рецепта от клиента не требуется.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Связь с клиентом <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    1. <b>Перед выездом:</b> Звонить не обязательно, если нет уточняющих вопросов по адресу. <br>
+                    2. <b>По прибытии:</b> Позвоните клиенту, вежливо сообщите, что вы курьер Topgo и привезли заказ из аптеки. <br>
+                    3. <b>Если не отвечает:</b> Сделайте 3 звонка с интервалом в 2 минуты. Если ответа нет — свяжитесь с диспетчером.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFaq(this)">Как вернуть заказ в аптеку? <span class="faq-icon">▼</span></div>
+                <div class="faq-answer">
+                    Возврат осуществляется только в случае невозможности вручения заказа клиенту: <br><br>
+                    1. Получите подтверждение от диспетчера на отмену заказа. <br>
+                    2. Вернитесь в ту же аптеку, где забирали заказ. <br>
+                    3. Передайте пакет фармацевту и попросите отметить возврат в системе. <br>
+                    4. После этого заказ будет считаться закрытым с оплатой за "холостой пробег".
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivation System -->
         <div class="card">
             <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Система мотивации</h3>
-            
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Как получить бонус 10 000 ₽? <span class="faq-icon">▼</span>
-                </div>
+                <div class="faq-question" onclick="toggleFaq(this)">Как получить бонус 10 000 ₽? <span class="faq-icon">▼</span></div>
                 <div class="faq-answer">
-                    Данный бонус является приветственным для новых курьеров. Чтобы его получить:<br>
-                    1. Выполните свои первые 10 заказов в системе.<br>
-                    2. Следите за прогрессом по звездам на главном экране.<br>
-                    3. Как только 10-я звезда станет золотой, бонус будет начислен на ваш баланс автоматически.
+                    Данный бонус является приветственным. Чтобы его получить:<br>
+                    1. Выполните свои первые 10 заказов.<br>
+                    2. Как только 10-я звезда на главном экране станет золотой, бонус будет начислен автоматически.
                 </div>
             </div>
-
             <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Как повысить ставку за заказ? <span class="faq-icon">▼</span>
-                </div>
+                <div class="faq-question" onclick="toggleFaq(this)">Как повысить ставку? <span class="faq-icon">▼</span></div>
                 <div class="faq-answer">
-                    В Topgo действует накопительная система уровней дохода:<br>
-                    • <b>Базовая ставка:</b> 550 ₽ за заказ.<br>
-                    • <b>Уровень 2 (600 ₽):</b> Активируется автоматически после выполнения 50 заказов за всё время.<br>
-                    • <b>Уровень 3 (650 ₽):</b> Максимальная ставка, активируется после 100 выполненных заказов.<br>
-                    Ваш текущий прогресс до следующего уровня отображается на шкале внизу главного экрана.
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px;">Инструкции курьера</h3>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Клиент не отвечает на звонок <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    1. Попробуйте позвонить 3 раза с интервалом в 2 минуты.<br>
-                    2. Напишите в чат (если доступно) или СМС.<br>
-                    3. Подождите 10 минут на точке.<br>
-                    4. Если ответа нет — свяжитесь с поддержкой через бот для отмены.
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    Как сделать возврат в аптеку? <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    Если заказ отменен или клиент отказался, товар необходимо вернуть в ту же аптеку, где вы его забирали. Обязательно попросите фармацевта подтвердить возврат в системе.
+                    • <b>550 ₽:</b> Базовая ставка.<br>
+                    • <b>600 ₽:</b> После выполнения 50 заказов.<br>
+                    • <b>650 ₽:</b> После выполнения 100 заказов.
                 </div>
             </div>
         </div>
@@ -399,7 +420,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAbrT8SPEIAWPLJqaUNYK-JFBiWoTvowBc",
@@ -418,13 +439,14 @@
         const userId = tg.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : "test_user_123";
         const userRef = doc(db, "accounts", userId);
 
-        let userStatus = "inactive";
+        let lastVisitTime = null;
 
         onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                userStatus = data.status || "inactive";
+                lastVisitTime = data.last_visit?.toMillis() || Date.now();
                 updateUI(data);
+                updateDynamicOrders();
             } else {
                 createNewUser();
             }
@@ -437,11 +459,25 @@
                 status: "inactive",
                 balance: 0,
                 orders_today: 0,
-                total_orders: 0
+                total_orders: 0,
+                last_visit: serverTimestamp()
             });
         }
 
-        window.getStatus = () => userStatus;
+        // Available orders logic: ID: orders_count_val, Type: Text
+        function updateDynamicOrders() {
+            if (!lastVisitTime) return;
+            const now = Date.now();
+            const diffInMs = now - lastVisitTime;
+            const thirtyMinMs = 30 * 60 * 1000;
+            const intervalCount = Math.floor(diffInMs / thirtyMinMs);
+            const seed = lastVisitTime + (intervalCount * thirtyMinMs);
+            const randomCount = 7 + (seed % 6);
+            const counterEl = document.getElementById('orders_count_val');
+            if (counterEl) counterEl.innerText = randomCount;
+        }
+
+        setInterval(updateDynamicOrders, 60000); 
 
         function updateUI(data) {
             const total = data.total_orders || 0;
@@ -464,7 +500,6 @@
 
             let nextGoal = 50; let prevGoal = 0;
             if (total >= 50) { nextGoal = 100; prevGoal = 50; }
-            
             const progressVal = total >= 100 ? 100 : Math.min(100, ((total - prevGoal) / (nextGoal - prevGoal)) * 100);
             document.getElementById('rate-progress-fill').style.width = progressVal + "%";
             document.getElementById('progress-percent').innerText = Math.round(progressVal) + "%";
@@ -472,7 +507,6 @@
 
             const profNameInput = document.getElementById('prof-name');
             const profPhoneInput = document.getElementById('prof-phone');
-
             if (profNameInput.readOnly) {
                 profNameInput.value = data.name || "";
                 profPhoneInput.value = data.phone || "";
@@ -482,13 +516,10 @@
         window.saveProfile = async () => {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
-            
             await updateDoc(userRef, { name, phone });
-            
             document.getElementById('prof-name').readOnly = true;
             document.getElementById('prof-phone').readOnly = true;
             document.getElementById('save-profile-btn').style.display = 'none';
-            
             showAlert("Данные успешно сохранены!");
         };
     </script>
@@ -537,7 +568,6 @@
                     stText.innerText = "Вне смены";
                     stText.className = "status-text offline";
                     stDot.className = "dot bg-offline";
-                    
                     showAlert("Ваш аккаунт не активирован. Обратитесь к менеджеру для прохождения инструктажа.");
                 }, 1000);
             }
@@ -548,7 +578,6 @@
             document.getElementById('prof-phone').readOnly = false;
             document.getElementById('prof-name').focus();
             document.getElementById('save-profile-btn').style.display = 'block';
-            
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
         }
 
