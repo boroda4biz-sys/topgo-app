@@ -366,9 +366,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // КЛЮЧИ ТЕПЕРЬ ТУТ (ВНЕШНИЙ ФАЙЛ)
+        // Загружаем конфиг из файла firebase-config.js
         import { firebaseConfig } from './firebase-config.js';
 
         const app = initializeApp(firebaseConfig);
@@ -381,6 +381,7 @@
 
         let lastVisitTime = null;
 
+        // Реальное время отслеживания документа
         onSnapshot(userRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
@@ -388,20 +389,29 @@
                 updateUI(data);
                 updateDynamicOrders();
             } else {
+                console.log("Пользователь не найден, создаем новый документ...");
                 createNewUser();
             }
+        }, (error) => {
+            console.error("Ошибка Firestore:", error);
         });
 
         async function createNewUser() {
-            await setDoc(userRef, {
-                name: tg.initDataUnsafe?.user?.first_name || "Курьер",
-                phone: "",
-                status: "inactive",
-                balance: 0,
-                orders_today: 0,
-                total_orders: 0,
-                last_visit: serverTimestamp()
-            });
+            try {
+                await setDoc(userRef, {
+                    id: userId,
+                    name: tg.initDataUnsafe?.user?.first_name || "Курьер",
+                    phone: "",
+                    status: "inactive",
+                    balance: 0,
+                    orders_today: 0,
+                    total_orders: 0,
+                    last_visit: serverTimestamp()
+                });
+                console.log("Новый пользователь успешно создан в базе.");
+            } catch (e) {
+                console.error("Не удалось создать пользователя:", e);
+            }
         }
 
         function updateDynamicOrders() {
@@ -455,16 +465,23 @@
         window.saveProfile = async () => {
             const name = document.getElementById('prof-name').value;
             const phone = document.getElementById('prof-phone').value;
-            await updateDoc(userRef, { name, phone });
-            document.getElementById('prof-name').readOnly = true;
-            document.getElementById('prof-phone').readOnly = true;
-            document.getElementById('save-profile-btn').style.display = 'none';
-            showAlert("Данные успешно сохранены!");
+            
+            try {
+                // Используем setDoc с merge: true для надежности (создаст или обновит)
+                await setDoc(userRef, { name, phone }, { merge: true });
+                
+                document.getElementById('prof-name').readOnly = true;
+                document.getElementById('prof-phone').readOnly = true;
+                document.getElementById('save-profile-btn').style.display = 'none';
+                showAlert("Данные успешно сохранены!");
+            } catch (e) {
+                console.error("Ошибка сохранения:", e);
+                showAlert("Ошибка сохранения: " + e.message);
+            }
         };
     </script>
 
     <script>
-        // Вспомогательные функции навигации и UI
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.add('active');
